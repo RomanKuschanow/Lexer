@@ -1,4 +1,6 @@
-﻿using Lexer.Rules;
+﻿#nullable disable
+using Lexer.Rules;
+using System.Data;
 
 namespace Lexer.Analyzer;
 public class LexemeAnalyzer
@@ -7,15 +9,32 @@ public class LexemeAnalyzer
 
     public LexemeAnalyzerOptions Options { get; set; }
 
+    private SemaphoreSlim _semaphore;
+
     public LexemeAnalyzer(RuleSet rules = null!, LexemeAnalyzerOptions options = null!)
     {
         Rules = rules ?? new();
         Options = options ?? new();
     }
 
-    public async Task<AnalyzeResult> Analyze(string str, CancellationToken ct)
+    public async Task<AnalyzeResult> Analyze(string str, int maxDegreeOfParallelism = 10, CancellationToken ct = default)
     {
-        var layers = await Task.WhenAll(Rules.Select(async r => await r.FindLexemes(str, ct)));
+        using var semaphore = new SemaphoreSlim(maxDegreeOfParallelism);
+        var tasks = Rules.Select(async r =>
+        {
+            await semaphore.WaitAsync(ct);
+            try
+            {
+                return await r.FindLexemes(str, ct);
+            }
+            finally
+            {
+
+                semaphore.Release();
+            }
+        });
+
+        var layers = await Task.WhenAll(tasks);
 
         List<Lexeme> lexemes = new();
         List<UnrecognizedPart> errors = new();
