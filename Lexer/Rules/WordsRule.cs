@@ -32,7 +32,7 @@ public class WordsRule : IRule
 
     public async Task<AnalyzedLayer> FindLexemes(string str, CancellationToken ct)
     {
-        var matches = Regex.Matches(str, $"\b{string.Join('|', Words)}\b");
+        var matches = Regex.Matches(str, $@"\b{string.Join('|', Words)}\b");
 
         return await Task.FromResult(new AnalyzedLayer(matches.Select(m => new RawLexeme(m.Index, m.Length, this))));
     }
