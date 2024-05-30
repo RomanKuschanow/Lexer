@@ -13,8 +13,8 @@ public class RegexRule : IRule
         get => _type;
         set => _type = value ?? throw new ArgumentNullException(nameof(value)); 
     }
-    public bool IsEnabled { get; set; }
     public bool IsIgnored { get; set; }
+    public bool IsEnabled { get; set; }
 
     public Regex Regex 
     {
@@ -22,12 +22,12 @@ public class RegexRule : IRule
         set => _regex = value ?? throw new ArgumentNullException(nameof(value)); 
     }
 
-    public RegexRule(Regex regex, string type, bool isEnabled = true, bool isIgnored = false)
+    public RegexRule(Regex regex, string type, bool isIgnored = false, bool isEnabled = true)
     {
         Regex = regex;
         Type = type;
-        IsEnabled = isEnabled;
         IsIgnored = isIgnored;
+        IsEnabled = isEnabled;
     }
 
     public async Task<AnalyzedLayer> FindLexemes(string str, CancellationToken ct)
