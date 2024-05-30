@@ -14,7 +14,7 @@ public class RegexRuleFixtures
         var sut = new RegexRule(new(pattern), "");
 
         // Act
-        var layer = await sut.FindLexemes(str, CancellationToken.None);
+        var layer = await sut.FindLexemes(str);
 
         // Assert
         layer.Count.Should().Be(count);
@@ -30,7 +30,7 @@ public class RegexRuleFixtures
         var sut = new RegexRule(new(pattern), "");
 
         // Act
-        var layer = await sut.FindLexemes(str, CancellationToken.None);
+        var layer = await sut.FindLexemes(str);
 
         // Assert
         layer.Count.Should().Be(1);

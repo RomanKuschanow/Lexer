@@ -27,5 +27,5 @@ public class CustomRule : IRule
         IsEnabled = isEnabled;
     }
 
-    public async Task<AnalyzedLayer> FindLexemes(string str, CancellationToken ct) => await Func(str, ct);
+    public async Task<AnalyzedLayer> FindLexemes(string str, CancellationToken ct = default) => await Func(str, ct);
 }

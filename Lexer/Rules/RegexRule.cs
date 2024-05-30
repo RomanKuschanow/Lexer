@@ -30,7 +30,7 @@ public class RegexRule : IRule
         IsEnabled = isEnabled;
     }
 
-    public async Task<AnalyzedLayer> FindLexemes(string str, CancellationToken ct)
+    public async Task<AnalyzedLayer> FindLexemes(string str, CancellationToken ct = default)
     {
         var matches = Regex.Matches(str);
 
