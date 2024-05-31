@@ -14,6 +14,13 @@ public class RuleSet : IEnumerable<IRule>
         set => _rules[index] = value;
     }
 
+    public RuleSet()
+    {
+        
+    }
+
+    public RuleSet(IEnumerable<IRule> rules) => _rules = rules.ToList();
+
     public void Add(IRule rule) => _rules.Add(rule);
     public void Insert(int index, IRule rule) => _rules.Insert(index, rule);
     public void Clear() => _rules.Clear();

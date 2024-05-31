@@ -43,11 +43,11 @@ public class LexemeAnalyzer
         {
             int startIndex = 0;
             IEnumerable<RawLexeme> candidates;
-            while ((candidates = layers.Select(l => l.FirstOrDefault(r => r.Start > startIndex))
+            while ((candidates = layers.Select(l => l.FirstOrDefault(r => r.Start >= startIndex))
                                        .Where(l => l is not null).Cast<RawLexeme>()).Any())
             {
                 var selectedLexeme = candidates.First();
-                foreach (var lexeme in candidates)
+                foreach (var lexeme in candidates.Skip(1))
                     if (lexeme.Start < selectedLexeme.Start)
                         selectedLexeme = lexeme;
 
