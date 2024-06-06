@@ -1,5 +1,8 @@
 ﻿#nullable disable
 using Lexer.Rules;
+using Lexer.Rules.Interfaces;
+using Lexer.Rules.RawResults;
+using Lexer.Rules.RuleInputs;
 using System.Data;
 
 namespace Lexer.Analyzer;
@@ -17,19 +20,46 @@ public class LexemeAnalyzer
         Options = options ?? new();
     }
 
-    public async Task<AnalyzeResult> Analyze(string str, int maxDegreeOfParallelism = 10, CancellationToken ct = default)
+    public async Task<AnalyzeResult> Analyze(string text, int maxDegreeOfParallelism = 10, CancellationToken ct = default)
     {
+        await Rules.PrepareRules();
+
         using var semaphore = new SemaphoreSlim(maxDegreeOfParallelism);
+
+        Dictionary<IRule, AnalyzedLayer> layersDict = new();
+
         var tasks = Rules.Select(async r =>
         {
             await semaphore.WaitAsync(ct);
             try
             {
-                return await r.FindLexemes(str, ct);
+                if (r is IRule)
+                {
+                    var result = await r.FindLexemes(new RuleInput(text), ct);
+                    layersDict.Add(r, result);
+
+                    return result;
+                }
+
+                else if (r is IDependencyRule rule)
+                {
+                    Dictionary<IRule, AnalyzedLayer> dependencies = new();
+                    foreach (var dependencyRule in rule.Dependencies)
+                    {
+                        dependencies.Add(dependencyRule, layersDict[dependencyRule]);
+                    }
+                    var input = new DependencyRuleInput(text, dependencies);
+
+                    var result = await r.FindLexemes(input, ct);
+                    layersDict.Add(r, result);
+
+                    return result;
+                }
+                else
+                    throw new ArgumentException("'r' has unexpected type", nameof(r));
             }
             finally
             {
-
                 semaphore.Release();
             }
         });
@@ -52,7 +82,7 @@ public class LexemeAnalyzer
                         selectedLexeme = lexeme;
 
                 if (!selectedLexeme.Rule.IsIgnored)
-                    lexemes.Add(new(selectedLexeme.Rule.Type, str.Substring(selectedLexeme.Start, selectedLexeme.Length)));
+                    lexemes.Add(new(selectedLexeme.Rule.Type, text.Substring(selectedLexeme.Start, selectedLexeme.Length)));
 
                 if (selectedLexeme.Start > startIndex)
                 {
@@ -68,8 +98,8 @@ public class LexemeAnalyzer
 
         (int, int) GetLineAndCharacter(int index)
         {
-            int ln = str[..index].Where(ch => ch == '\n').Count() + 1;
-            int lastIndexOfNewLine = str[..(index + 1)].LastIndexOf('\n');
+            int ln = text[..index].Where(ch => ch == '\n').Count() + 1;
+            int lastIndexOfNewLine = text[..(index + 1)].LastIndexOf('\n');
             int ch = index - (lastIndexOfNewLine > -1 ? lastIndexOfNewLine : 0);
             return (ln, ch);
         }

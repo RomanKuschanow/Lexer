@@ -1,5 +1,6 @@
-﻿using System.Collections;
-using System.ComponentModel;
+﻿using Lexer.Rules.Interfaces;
+using Lexer.Rules.RuleInputs;
+using System.Collections;
 
 namespace Lexer.Rules;
 public class RuleSet : IEnumerable<IRule>
@@ -16,10 +17,47 @@ public class RuleSet : IEnumerable<IRule>
 
     public RuleSet()
     {
-        
+
     }
 
     public RuleSet(IEnumerable<IRule> rules) => _rules = rules.ToList();
+
+    public async Task PrepareRules()
+    {
+        await Task.Run(() =>
+        {
+            foreach (IDependencyRule rule in this.Where(r => r is IDependencyRule).Cast<IDependencyRule>())
+            {
+                int ruleIndex = _rules.IndexOf(rule);
+                foreach (IRule dependency in rule.Dependencies)
+                {
+                    if (!this.Contains(dependency) || _rules.IndexOf(dependency) > ruleIndex)
+                        RemoveDependency(rule, dependency);
+                }
+            }
+        });
+    }
+
+    public void AddDependency(IDependencyRule to, IRule rule)
+    {
+        ArgumentNullException.ThrowIfNull(to);
+        ArgumentNullException.ThrowIfNull(rule);
+
+        if (!this.Contains(to)) throw new ArgumentException("'to' must be in this RuleSet", nameof(to));
+        if (!this.Contains(rule)) throw new ArgumentException("'rule' must be in this RuleSet", nameof(rule));
+
+        to.AddDependency(rule);
+    }
+    public void RemoveDependency(IDependencyRule to, IRule rule)
+    {
+        ArgumentNullException.ThrowIfNull(to);
+        ArgumentNullException.ThrowIfNull(rule);
+
+        if (!this.Contains(to)) throw new ArgumentException("'to' must be in this RuleSet", nameof(to));
+
+        to.RemoveDependency(rule);
+    }
+    public void ClearDependencies(IDependencyRule rule) => rule.ClearDependencies();
 
     public void Add(IRule rule) => _rules.Add(rule);
     public void Insert(int index, IRule rule) => _rules.Insert(index, rule);

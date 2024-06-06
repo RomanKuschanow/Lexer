@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Lexer.Rules;
+using Lexer.Rules.RuleInputs;
 
 namespace Lexer.Tests;
 public class RegexRuleFixtures
@@ -14,7 +15,7 @@ public class RegexRuleFixtures
         var sut = new RegexRule(new(pattern), "");
 
         // Act
-        var layer = await sut.FindLexemes(str);
+        var layer = await sut.FindLexemes(new RuleInput(str));
 
         // Assert
         layer.Count.Should().Be(count);
@@ -30,7 +31,7 @@ public class RegexRuleFixtures
         var sut = new RegexRule(new(pattern), "");
 
         // Act
-        var layer = await sut.FindLexemes(str);
+        var layer = await sut.FindLexemes(new RuleInput(str));
 
         // Assert
         layer.Count.Should().Be(1);

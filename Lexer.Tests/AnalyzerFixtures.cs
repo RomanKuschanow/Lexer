@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Lexer.Analyzer;
 using Lexer.Rules;
+using Lexer.Rules.Interfaces;
 
 namespace Lexer.Tests;
 public class AnalyzerFixtures

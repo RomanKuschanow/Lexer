@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Lexer.Rules;
+namespace Lexer.Rules.RawResults;
 public class AnalyzedLayer : IEnumerable<RawLexeme>
 {
     private readonly List<RawLexeme> _rawLexemes = new();
