@@ -3,7 +3,7 @@ using Lexer.Rules;
 using Lexer.Rules.RawResults;
 using Lexer.Rules.RuleInputs;
 
-namespace Lexer.Tests;
+namespace Lexer.Tests.RulesTests;
 public class CustomRuleFixtures
 {
     [Theory]

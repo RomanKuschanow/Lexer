@@ -2,7 +2,7 @@
 using Lexer.Rules;
 using Lexer.Rules.RuleInputs;
 
-namespace Lexer.Tests;
+namespace Lexer.Tests.RulesTests;
 public class RegexRuleFixtures
 {
     [Theory]

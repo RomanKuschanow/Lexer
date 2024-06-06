@@ -56,7 +56,7 @@ public class LexemeAnalyzer
                     return result;
                 }
                 else
-                    throw new ArgumentException("'r' has unexpected type", nameof(r));
+                    throw new ArgumentException("\"r\" has unexpected type", nameof(r));
             }
             finally
             {

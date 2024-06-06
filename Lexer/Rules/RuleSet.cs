@@ -43,8 +43,8 @@ public class RuleSet : IEnumerable<IRule<IRuleInput>>
         ArgumentNullException.ThrowIfNull(to);
         ArgumentNullException.ThrowIfNull(rule);
 
-        if (!this.Contains((IRule<IRuleInput>)to)) throw new ArgumentException("'to' must be in this RuleSet", nameof(to));
-        if (!this.Contains(rule)) throw new ArgumentException("'rule' must be in this RuleSet", nameof(rule));
+        if (!this.Contains((IRule<IRuleInput>)to)) throw new ArgumentException("\"to\" must be in this RuleSet", nameof(to));
+        if (!this.Contains(rule)) throw new ArgumentException("\"rule\" must be in this RuleSet", nameof(rule));
 
         to.AddDependency(rule);
     }
@@ -53,7 +53,7 @@ public class RuleSet : IEnumerable<IRule<IRuleInput>>
         ArgumentNullException.ThrowIfNull(to);
         ArgumentNullException.ThrowIfNull(rule);
 
-        if (!this.Contains((IRule<IRuleInput>)to)) throw new ArgumentException("'to' must be in this RuleSet", nameof(to));
+        if (!this.Contains((IRule<IRuleInput>)to)) throw new ArgumentException("\"to\" must be in this RuleSet", nameof(to));
 
         to.RemoveDependency(rule);
     }
