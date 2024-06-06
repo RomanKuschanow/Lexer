@@ -8,6 +8,6 @@ public interface IDependencyRuleInput : IRuleInput
     /// <summary>
     /// Gets the list of analyzed layer dependencies.
     /// </summary>
-    ImmutableDictionary<IRule, AnalyzedLayer> Dependencies { get; }
+    ImmutableDictionary<IRule<IRuleInput>, AnalyzedLayer> Dependencies { get; }
 }
 

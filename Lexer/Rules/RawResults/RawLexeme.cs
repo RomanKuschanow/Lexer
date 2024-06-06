@@ -1,4 +1,5 @@
 ﻿using Lexer.Rules.Interfaces;
+using Lexer.Rules.RuleInputs;
 
 namespace Lexer.Rules.RawResults;
 /// <summary>
@@ -20,7 +21,7 @@ public record RawLexeme
     /// <summary>
     /// Gets the rule used to identify this lexeme.
     /// </summary>
-    public IRule Rule { get; }
+    public IRule<IRuleInput> Rule { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RawLexeme"/> record.
@@ -28,7 +29,7 @@ public record RawLexeme
     /// <param name="start">The starting position of the lexeme within the text.</param>
     /// <param name="length">The length of the lexeme within the text.</param>
     /// <param name="rule">The rule used to identify this lexeme.</param>
-    public RawLexeme(int start, int length, IRule rule)
+    public RawLexeme(int start, int length, IRule<IRuleInput> rule)
     {
         Start = start;
         Length = length;

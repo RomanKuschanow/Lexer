@@ -1,24 +1,41 @@
-﻿using Lexer.Rules.Interfaces;
+﻿#nullable disable
+using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
 using Lexer.Rules.RuleInputs;
 using System.Collections.Immutable;
 
 namespace Lexer.Rules;
-public abstract class DependencyRuleBase : RuleBase, IDependencyRule
+public abstract class DependencyRuleBase : IDependencyRule
 {
-    private readonly List<IRule> _dependencies = new();
+    private string _type;
+    private readonly List<IRule<IRuleInput>> _dependencies = new();
 
-    public ImmutableList<IRule> Dependencies => _dependencies.ToImmutableList();
+    public string Type
+    {
+        get => _type;
+        set => _type = value ?? throw new ArgumentNullException(nameof(value));
+    }
+    public bool IsIgnored { get; set; }
+    public bool IsEnabled { get; set; }
 
-    public DependencyRuleBase(string type, bool isIgnored = false, bool isEnabled = true) : base(type, isIgnored, isEnabled) { }
+    public ImmutableList<IRule<IRuleInput>> Dependencies => _dependencies.ToImmutableList();
 
-    public void AddDependency(IRule rule)
+    protected DependencyRuleBase(string type, bool isIgnored = false, bool isEnabled = true)
+    {
+        Type = type;
+        IsIgnored = isIgnored;
+        IsEnabled = isEnabled;
+    }
+
+    public void AddDependency(IRule<IRuleInput> rule)
     {
         if (_dependencies.Contains(rule)) return;
         _dependencies.Add(rule);
     }
 
-    public void RemoveDependency(IRule rule) => _dependencies.Remove(rule);
+    public void RemoveDependency(IRule<IRuleInput> rule) => _dependencies.Remove(rule);
 
     public void ClearDependencies() => _dependencies.Clear();
+
+    public abstract Task<AnalyzedLayer> FindLexemes(IDependencyRuleInput input, CancellationToken ct);
 }

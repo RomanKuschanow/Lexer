@@ -7,13 +7,13 @@ using Lexer.Rules.RuleInputs;
 namespace Lexer.Rules;
 public class CustomRule : RuleBase
 {
-    private Func<IRuleInput, CancellationToken, IRule, Task<AnalyzedLayer>> _func;
+    private Func<IRuleInput, CancellationToken, IRule<IRuleInput>, Task<AnalyzedLayer>> _func;
 
     /// <summary>
     /// Gets or sets the function used to identify lexemes in the text.
     /// </summary>
     /// <exception cref="ArgumentNullException">Thrown when the value is set to null.</exception>
-    public Func<IRuleInput, CancellationToken, IRule, Task<AnalyzedLayer>> Func
+    public Func<IRuleInput, CancellationToken, IRule<IRuleInput>, Task<AnalyzedLayer>> Func
     {
         get => _func;
         set => _func = value ?? throw new ArgumentNullException(nameof(value));
@@ -26,7 +26,7 @@ public class CustomRule : RuleBase
     /// <param name="type">The type name of the rule.</param>
     /// <param name="isIgnored">Optional. Indicates whether lexemes found should be ignored. Defaults to false.</param>
     /// <param name="isEnabled">Optional. Indicates whether the rule is active. Defaults to true.</param>
-    public CustomRule(Func<IRuleInput, CancellationToken, IRule, Task<AnalyzedLayer>> func, string type, bool isIgnored = false, bool isEnabled = true) : base(type, isIgnored, isEnabled)
+    public CustomRule(Func<IRuleInput, CancellationToken, IRule<IRuleInput>, Task<AnalyzedLayer>> func, string type, bool isIgnored = false, bool isEnabled = true) : base(type, isIgnored, isEnabled)
     {
         Func = func;
     }

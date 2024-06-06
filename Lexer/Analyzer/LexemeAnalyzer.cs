@@ -26,7 +26,7 @@ public class LexemeAnalyzer
 
         using var semaphore = new SemaphoreSlim(maxDegreeOfParallelism);
 
-        Dictionary<IRule, AnalyzedLayer> layersDict = new();
+        Dictionary<IRule<IRuleInput>, AnalyzedLayer> layersDict = new();
 
         var tasks = Rules.Select(async r =>
         {
@@ -43,7 +43,7 @@ public class LexemeAnalyzer
 
                 else if (r is IDependencyRule rule)
                 {
-                    Dictionary<IRule, AnalyzedLayer> dependencies = new();
+                    Dictionary<IRule<IRuleInput>, AnalyzedLayer> dependencies = new();
                     foreach (var dependencyRule in rule.Dependencies)
                     {
                         dependencies.Add(dependencyRule, layersDict[dependencyRule]);

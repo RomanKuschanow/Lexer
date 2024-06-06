@@ -2,13 +2,13 @@
 using System.Collections.Immutable;
 
 namespace Lexer.Rules.Interfaces;
-public interface IDependencyRule : IRule
+public interface IDependencyRule : IRule<IDependencyRuleInput>
 {
-    ImmutableList<IRule> Dependencies { get; }
+    ImmutableList<IRule<IRuleInput>> Dependencies { get; }
 
-    void AddDependency(IRule rule);
+    void AddDependency(IRule<IRuleInput> rule);
 
-    void RemoveDependency(IRule rule);
+    void RemoveDependency(IRule<IRuleInput> rule);
 
     void ClearDependencies();
 }
