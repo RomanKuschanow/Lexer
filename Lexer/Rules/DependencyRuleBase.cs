@@ -40,5 +40,5 @@ public abstract class DependencyRuleBase : RuleBase, IDependencyRule
 
     public abstract Task<AnalyzedLayer> FindLexemes(IDependencyRuleInput input, CancellationToken ct);
 
-    public new IRuleInput Accept(IVisitor visitor, VisitorInput visitorInput) => visitor.Rule(visitorInput);
+    public new IRuleInput Accept(IVisitor visitor, VisitorInput visitorInput) => visitor.Rule(visitorInput, this);
 }

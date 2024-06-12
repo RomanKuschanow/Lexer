@@ -5,5 +5,5 @@ namespace Lexer.Rules.Visitors;
 public interface IVisitor
 {
     IRuleInput Rule(VisitorInput visitorInput); 
-    IDependencyRuleInput DependencyRule(VisitorInput visitorInput); 
+    IDependencyRuleInput DependencyRule(VisitorInput visitorInput, IDependencyRule rule); 
 }
