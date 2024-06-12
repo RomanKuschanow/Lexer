@@ -2,6 +2,7 @@
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
 using Lexer.Rules.RuleInputs;
+using Lexer.Rules.Visitors;
 
 namespace Lexer.Rules;
 public abstract class RuleBase : IRule
@@ -24,4 +25,6 @@ public abstract class RuleBase : IRule
     }
 
     public abstract Task<AnalyzedLayer> FindLexemes(IRuleInput input, CancellationToken ct);
+
+    public IRuleInput Accept(IVisitor visitor, VisitorInput visitorInput) => visitor.Rule(visitorInput);
 }

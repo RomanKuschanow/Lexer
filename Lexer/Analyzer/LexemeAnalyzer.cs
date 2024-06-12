@@ -3,6 +3,7 @@ using Lexer.Rules;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
 using Lexer.Rules.RuleInputs;
+using Lexer.Rules.Visitors;
 using System.Data;
 
 namespace Lexer.Analyzer;
@@ -26,37 +27,21 @@ public class LexemeAnalyzer
 
         using var semaphore = new SemaphoreSlim(maxDegreeOfParallelism);
 
-        Dictionary<IRule<IRuleInput>, AnalyzedLayer> layersDict = new();
+        Dictionary<IRule, AnalyzedLayer> layersDict = new();
+        VisitorInput visitorInput = new(text, layersDict);
+        Visitor visitor = new();
 
         var tasks = Rules.Select(async r =>
         {
             await semaphore.WaitAsync(ct);
             try
             {
-                if (r is IRule)
-                {
-                    var result = await r.FindLexemes(new RuleInput(text), ct);
-                    layersDict.Add(r, result);
+                var input = r.Accept(visitor, visitorInput);
 
-                    return result;
-                }
+                var result = await r.FindLexemes(input, ct);
+                layersDict.Add(r, result);
 
-                else if (r is IDependencyRule rule)
-                {
-                    Dictionary<IRule<IRuleInput>, AnalyzedLayer> dependencies = new();
-                    foreach (var dependencyRule in rule.Dependencies)
-                    {
-                        dependencies.Add(dependencyRule, layersDict[dependencyRule]);
-                    }
-                    var input = new DependencyRuleInput(text, dependencies);
-
-                    var result = await r.FindLexemes(input, ct);
-                    layersDict.Add(r, result);
-
-                    return result;
-                }
-                else
-                    throw new ArgumentException("\"r\" has unexpected type", nameof(r));
+                return result;
             }
             finally
             {

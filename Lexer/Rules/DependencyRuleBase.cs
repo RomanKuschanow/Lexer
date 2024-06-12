@@ -2,40 +2,43 @@
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
 using Lexer.Rules.RuleInputs;
+using Lexer.Rules.Visitors;
 using System.Collections.Immutable;
 
 namespace Lexer.Rules;
-public abstract class DependencyRuleBase : IDependencyRule
+public abstract class DependencyRuleBase : RuleBase, IDependencyRule
 {
-    private string _type;
-    private readonly List<IRule<IRuleInput>> _dependencies = new();
+    private readonly Dictionary<IRule, string[]> _dependencies = new();
 
-    public string Type
+    public ImmutableDictionary<IRule, string[]> Dependencies => _dependencies.ToImmutableDictionary();
+
+    protected DependencyRuleBase(string type, bool isIgnored = false, bool isEnabled = true) : base(type, isIgnored, isEnabled) { }
+
+    public void AddDependency(IRule rule, params string[] names)
     {
-        get => _type;
-        set => _type = value ?? throw new ArgumentNullException(nameof(value));
-    }
-    public bool IsIgnored { get; set; }
-    public bool IsEnabled { get; set; }
+        ArgumentNullException.ThrowIfNull(rule, nameof(rule));
+        ArgumentNullException.ThrowIfNull(names, nameof(names));
 
-    public ImmutableList<IRule<IRuleInput>> Dependencies => _dependencies.ToImmutableList();
-
-    protected DependencyRuleBase(string type, bool isIgnored = false, bool isEnabled = true)
-    {
-        Type = type;
-        IsIgnored = isIgnored;
-        IsEnabled = isEnabled;
+        if (_dependencies.ContainsKey(rule))
+            throw new ArgumentException("\"Dependencies\" already contains specified rule", nameof(rule));
+        _dependencies.Add(rule, names);
     }
 
-    public void AddDependency(IRule<IRuleInput> rule)
+    public void SetDependencyNames(IRule rule, params string[] names)
     {
-        if (_dependencies.Contains(rule)) return;
-        _dependencies.Add(rule);
+        ArgumentNullException.ThrowIfNull(rule, nameof(rule));
+        ArgumentNullException.ThrowIfNull(names, nameof(names));
+
+        if (!_dependencies.ContainsKey(rule))
+            throw new ArgumentException("\"Dependencies\" do not contain the specified rule", nameof(rule));
+        _dependencies[rule] = names;
     }
 
-    public void RemoveDependency(IRule<IRuleInput> rule) => _dependencies.Remove(rule);
+    public void RemoveDependency(IRule rule) => _dependencies.Remove(rule);
 
     public void ClearDependencies() => _dependencies.Clear();
 
     public abstract Task<AnalyzedLayer> FindLexemes(IDependencyRuleInput input, CancellationToken ct);
+
+    public new IRuleInput Accept(IVisitor visitor, VisitorInput visitorInput) => visitor.Rule(visitorInput);
 }
