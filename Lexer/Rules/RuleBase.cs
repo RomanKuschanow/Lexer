@@ -15,9 +15,10 @@ public abstract class RuleBase : IRule
         set => _type = value ?? throw new ArgumentNullException(nameof(value));
     }
     public bool IsIgnored { get; set; }
+    public bool IsOnlyForDependentRules { get; set; }
     public bool IsEnabled { get; set; }
 
-    protected RuleBase(string type, bool isIgnored = false, bool isEnabled = true)
+    protected RuleBase(string type, bool isIgnored = false, bool isOnlyForDependentRules = false, bool isEnabled = true)
     {
         Type = type;
         IsIgnored = isIgnored;

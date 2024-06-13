@@ -21,7 +21,7 @@ public class DelimiterRule : RuleBase
         set => _endDelimiter = value ?? throw new ArgumentNullException(nameof(value));
     }
 
-    public DelimiterRule(Regex startDelimiter, Regex endDelimiter, string type, bool isIgnored = false, bool isEnabled = true) : base(type, isIgnored, isEnabled)
+    public DelimiterRule(Regex startDelimiter, Regex endDelimiter, string type, bool isIgnored = false, bool isOnlyForDependentRules = false, bool isEnabled = true) : base(type, isIgnored, isOnlyForDependentRules, isEnabled)
     {
         StartDelimiter = startDelimiter;
         EndDelimiter = endDelimiter;
@@ -50,6 +50,6 @@ public class DelimiterRule : RuleBase
             }
         }, ct);
 
-        return await Task.FromResult(new AnalyzedLayer(lexemes));
+        return await AnalyzedLayer.FromIEnumerable(lexemes);
     }
 }

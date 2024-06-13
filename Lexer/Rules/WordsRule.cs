@@ -27,7 +27,7 @@ public class WordsRule : RuleBase
     /// <param name="type">The type name of the rule.</param>
     /// <param name="isIgnored">Optional. Indicates whether lexemes found should be ignored. Defaults to false.</param>
     /// <param name="isEnabled">Optional. Indicates whether the rule is active. Defaults to true.</param>
-    public WordsRule(IEnumerable<string> words, string type, bool isIgnored = false, bool isEnabled = true) : base(type, isIgnored, isEnabled)
+    public WordsRule(IEnumerable<string> words, string type, bool isIgnored = false, bool isOnlyForDependentRules = false, bool isEnabled = true) : base(type, isIgnored, isOnlyForDependentRules, isEnabled)
     {
         Words = words;
     }
@@ -41,6 +41,6 @@ public class WordsRule : RuleBase
     {
         var matches = Regex.Matches(input.Text, $@"\b{string.Join('|', Words)}\b");
 
-        return await Task.FromResult(new AnalyzedLayer(matches.Select(m => new RawLexeme(m.Index, m.Length, this))));
+        return await AnalyzedLayer.FromIEnumerable(matches.Select(m => new RawLexeme(m.Index, m.Length, this)));
     }
 }

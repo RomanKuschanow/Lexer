@@ -12,7 +12,7 @@ public abstract class DependencyRuleBase : RuleBase, IDependencyRule
 
     public ImmutableDictionary<IRule, string[]> Dependencies => _dependencies.ToImmutableDictionary();
 
-    protected DependencyRuleBase(string type, bool isIgnored = false, bool isEnabled = true) : base(type, isIgnored, isEnabled) { }
+    protected DependencyRuleBase(string type, bool isIgnored = false, bool isOnlyForDependentRules = false, bool isEnabled = true) : base(type, isIgnored, isOnlyForDependentRules, isEnabled) { }
 
     public void AddDependency(IRule rule, params string[] names)
     {
@@ -38,7 +38,5 @@ public abstract class DependencyRuleBase : RuleBase, IDependencyRule
 
     public void ClearDependencies() => _dependencies.Clear();
 
-    public abstract Task<AnalyzedLayer> FindLexemes(IDependencyRuleInput input, CancellationToken ct);
-
-    public new IRuleInput Accept(IVisitor visitor, VisitorInput visitorInput) => visitor.Rule(visitorInput, this);
+    public new IRuleInput Accept(IVisitor visitor, VisitorInput visitorInput) => visitor.DependencyRule(visitorInput, this);
 }

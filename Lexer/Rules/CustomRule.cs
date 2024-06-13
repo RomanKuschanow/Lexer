@@ -26,7 +26,7 @@ public class CustomRule : RuleBase
     /// <param name="type">The type name of the rule.</param>
     /// <param name="isIgnored">Optional. Indicates whether lexemes found should be ignored. Defaults to false.</param>
     /// <param name="isEnabled">Optional. Indicates whether the rule is active. Defaults to true.</param>
-    public CustomRule(Func<IRuleInput, CancellationToken, IRule, Task<AnalyzedLayer>> func, string type, bool isIgnored = false, bool isEnabled = true) : base(type, isIgnored, isEnabled)
+    public CustomRule(Func<IRuleInput, CancellationToken, IRule, Task<AnalyzedLayer>> func, string type, bool isIgnored = false, bool isOnlyForDependentRules = false, bool isEnabled = true) : base(type, isIgnored, isOnlyForDependentRules, isEnabled)
     {
         Func = func;
     }

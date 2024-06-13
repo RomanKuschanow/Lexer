@@ -2,7 +2,6 @@
 using Lexer.Rules;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.RuleInputs;
 using Lexer.Rules.Visitors;
 using System.Data;
 
@@ -12,8 +11,6 @@ public class LexemeAnalyzer
     public RuleSet Rules { get; set; }
 
     public LexemeAnalyzerOptions Options { get; set; }
-
-    private SemaphoreSlim _semaphore;
 
     public LexemeAnalyzer(RuleSet rules = null!, LexemeAnalyzerOptions options = null!)
     {
@@ -59,7 +56,7 @@ public class LexemeAnalyzer
             int startIndex = 0;
             IEnumerable<RawLexeme> candidates;
             while ((candidates = layers.Select(l => l.FirstOrDefault(r => r.Start >= startIndex))
-                                       .Where(l => l is not null).Cast<RawLexeme>()).Any())
+                                       .Where(l => l is not null && !l.Rule.IsOnlyForDependentRules).Cast<RawLexeme>()).Any())
             {
                 var selectedLexeme = candidates.First();
                 foreach (var lexeme in candidates.Skip(1))

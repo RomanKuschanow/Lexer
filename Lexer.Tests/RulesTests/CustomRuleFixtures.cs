@@ -13,7 +13,7 @@ public class CustomRuleFixtures
     private async Task GivenStringWithPatterns_WhenApplyCustomRule_ThenAllPatternsFound(string str, int count)
     {
         // Arrange
-        var sut = new CustomRule(async (s, ct, t) => await Task.FromResult(new AnalyzedLayer(s.Text.Select((ch, i) => new RawLexeme(i, 1, t)))), "");
+        var sut = new CustomRule(async (s, ct, t) => await AnalyzedLayer.FromIEnumerable(s.Text.Select((ch, i) => new RawLexeme(i, 1, t))), "");
 
         // Act
         var layer = await sut.FindLexemes(new RuleInput(str));
@@ -29,7 +29,7 @@ public class CustomRuleFixtures
     private async Task GivenStringWithOnePattern_WhenApplyCustomRule_ThenStartAndLengthOfLexemeMatchesWithGivenValues(string str, int start, int length)
     {
         // Arrange
-        var sut = new CustomRule(async (s, ct, t) => await Task.FromResult(new AnalyzedLayer(new RawLexeme[] { new(s.Text.IndexOf('a'), s.Text.Trim().Length, t) })), "");
+        var sut = new CustomRule(async (s, ct, t) => await AnalyzedLayer.FromIEnumerable(new RawLexeme[] { new(s.Text.IndexOf('a'), s.Text.Trim().Length, t) }), "");
 
         // Act
         var layer = await sut.FindLexemes(new RuleInput(str));

@@ -31,7 +31,7 @@ public class RegexRule : RuleBase
     /// <param name="isIgnored">Optional. Specifies whether lexemes found by this rule should be ignored in the output. Defaults to false.</param>
     /// <param name="isEnabled">Optional. Specifies whether this rule is enabled and should be used in the lexeme identification process. Defaults to true.</param>
     /// <exception cref="ArgumentNullException">Thrown when a null regex or type is passed to the constructor.</exception>
-    public RegexRule(Regex regex, string type, bool isIgnored = false, bool isEnabled = true) : base(type, isIgnored, isEnabled)
+    public RegexRule(Regex regex, string type, bool isIgnored = false, bool isOnlyForDependentRules = false, bool isEnabled = true) : base(type, isIgnored, isOnlyForDependentRules, isEnabled)
     {
         Regex = regex;
     }
@@ -39,13 +39,13 @@ public class RegexRule : RuleBase
     /// <summary>
     /// Asynchronously finds lexemes in the specified text using the Regex pattern.
     /// </summary>
-    /// <param name="str">The text to be analyzed.</param>
+    /// <param name="input">The text to be analyzed.</param>
     /// <param name="ct">Optional cancellation token to cancel the operation.</param>
     /// <returns>A task that yields an AnalyzedLayer containing the identified lexemes.</returns>
     public override async Task<AnalyzedLayer> FindLexemes(IRuleInput input, CancellationToken ct = default)
     {
         var matches = Regex.Matches(input.Text);
 
-        return await Task.FromResult(new AnalyzedLayer(matches.Select(m => new RawLexeme(m.Index, m.Length, this))));
+        return await AnalyzedLayer.FromIEnumerable(matches.Select(m => new RawLexeme(m.Index, m.Length, this)));
     }
 }
