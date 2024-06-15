@@ -75,9 +75,13 @@ public class DependedRegexRule : DependedRuleBase
 
         Regex forReplace = new(@"<(\w+)>");
 
-        var usedNamesInPattern = forReplace.Matches(Pattern).Select(m => m.Groups[1].Value).ToList();
+        var usedNamesInPattern = forReplace.Matches(Pattern)
+                                           .Select(m => m.Groups[1].Value)
+                                           .ToList();
         var uniqueNamesInPattern = usedNamesInPattern.Distinct();
-        var validNames = Dependencies.SelectMany(d => d.Value).Distinct().Intersect(uniqueNamesInPattern);
+        var validNames = Dependencies.SelectMany(d => d.Value)
+                                     .Distinct()
+                                     .Intersect(uniqueNamesInPattern);
 
         if (!validNames.SequenceEqual(uniqueNamesInPattern))
             throw new RegexDependencyException(uniqueNamesInPattern.Except(validNames));
