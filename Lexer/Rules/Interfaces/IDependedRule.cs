@@ -1,8 +1,7 @@
-﻿using Lexer.Rules.RuleInputs;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 
 namespace Lexer.Rules.Interfaces;
-public interface IDependencyRule : IRule
+public interface IDependedRule : IRule
 {
     ImmutableDictionary<IRule, string[]> Dependencies { get; }
 

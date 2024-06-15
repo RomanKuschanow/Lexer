@@ -1,9 +1,8 @@
-﻿using Lexer.Rules.Interfaces;
-using Lexer.Rules.RawResults;
+﻿using Lexer.Rules.RawResults;
 using System.Collections.Immutable;
 
-namespace Lexer.Rules.RuleInputs;
-public interface IDependencyRuleInput : IRuleInput
+namespace Lexer.Rules.Interfaces;
+public interface IDependedRuleInput : IRuleInput
 {
     /// <summary>
     /// Gets the list of analyzed layer dependencies.

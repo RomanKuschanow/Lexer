@@ -1,10 +1,10 @@
 ﻿#nullable disable
 
+using Lexer;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.RuleInputs;
 
-namespace Lexer.Rules;
+namespace Lexer.Rules.Common;
 public class CustomRule : RuleBase
 {
     private Func<IRuleInput, CancellationToken, IRule, Task<AnalyzedLayer>> _func;
@@ -26,7 +26,7 @@ public class CustomRule : RuleBase
     /// <param name="type">The type name of the rule.</param>
     /// <param name="isIgnored">Optional. Indicates whether lexemes found should be ignored. Defaults to false.</param>
     /// <param name="isEnabled">Optional. Indicates whether the rule is active. Defaults to true.</param>
-    public CustomRule(Func<IRuleInput, CancellationToken, IRule, Task<AnalyzedLayer>> func, string type, bool isIgnored = false, bool isOnlyForDependentRules = false, bool isEnabled = true) : base(type, isIgnored, isOnlyForDependentRules, isEnabled)
+    public CustomRule(Func<IRuleInput, CancellationToken, IRule, Task<AnalyzedLayer>> func, IRuleSettings ruleSettings) : base(ruleSettings)
     {
         Func = func;
     }

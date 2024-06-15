@@ -3,11 +3,11 @@ using Lexer.Rules.RawResults;
 using System.Collections.Immutable;
 
 namespace Lexer.Rules.RuleInputs;
-public class DependencyRuleInput : RuleInput, IDependencyRuleInput
+public class DependencyRuleInput : RuleInput, IDependedRuleInput
 {
-    public ImmutableDictionary<IRule, AnalyzedLayer> Dependencies { get; init; }
+    public ImmutableDictionary<IRule<IRuleInput>, AnalyzedLayer> Dependencies { get; init; }
 
-    public DependencyRuleInput(string text, IDictionary<IRule, AnalyzedLayer> dependencies) : base(text)
+    public DependencyRuleInput(string text, IDictionary<IRule<IRuleInput>, AnalyzedLayer> dependencies) : base(text)
     {
         Dependencies = dependencies.ToImmutableDictionary();
     }

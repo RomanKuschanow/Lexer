@@ -3,9 +3,8 @@
 using System.Text.RegularExpressions;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.RuleInputs;
 
-namespace Lexer.Rules;
+namespace Lexer.Rules.Common;
 public class WordsRule : RuleBase
 {
     private IEnumerable<string> _words;
@@ -27,7 +26,7 @@ public class WordsRule : RuleBase
     /// <param name="type">The type name of the rule.</param>
     /// <param name="isIgnored">Optional. Indicates whether lexemes found should be ignored. Defaults to false.</param>
     /// <param name="isEnabled">Optional. Indicates whether the rule is active. Defaults to true.</param>
-    public WordsRule(IEnumerable<string> words, string type, bool isIgnored = false, bool isOnlyForDependentRules = false, bool isEnabled = true) : base(type, isIgnored, isOnlyForDependentRules, isEnabled)
+    public WordsRule(IEnumerable<string> words, IRuleSettings ruleSettings) : base(ruleSettings)
     {
         Words = words;
     }

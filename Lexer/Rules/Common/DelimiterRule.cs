@@ -1,10 +1,11 @@
 ﻿#nullable disable
+using Lexer;
+using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.RuleInputs;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
-namespace Lexer.Rules;
+namespace Lexer.Rules.Common;
 public class DelimiterRule : RuleBase
 {
     private Regex _startDelimiter;
@@ -21,7 +22,7 @@ public class DelimiterRule : RuleBase
         set => _endDelimiter = value ?? throw new ArgumentNullException(nameof(value));
     }
 
-    public DelimiterRule(Regex startDelimiter, Regex endDelimiter, string type, bool isIgnored = false, bool isOnlyForDependentRules = false, bool isEnabled = true) : base(type, isIgnored, isOnlyForDependentRules, isEnabled)
+    public DelimiterRule(Regex startDelimiter, Regex endDelimiter, IRuleSettings ruleSettings) : base(ruleSettings)
     {
         StartDelimiter = startDelimiter;
         EndDelimiter = endDelimiter;
@@ -44,7 +45,7 @@ public class DelimiterRule : RuleBase
                 if (!endMatch.Success)
                     break;
 
-                lexemes.Add(new(startMatch.Index, (endMatch.Index + endMatch.Length) - startMatch.Index, this));
+                lexemes.Add(new(startMatch.Index, endMatch.Index + endMatch.Length - startMatch.Index, this));
 
                 index = startMatch.Index + 1;
             }

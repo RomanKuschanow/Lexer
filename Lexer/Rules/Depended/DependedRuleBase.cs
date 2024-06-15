@@ -1,18 +1,19 @@
 ﻿#nullable disable
+using Lexer;
+using Lexer.Rules.Common;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.RuleInputs;
 using Lexer.Rules.Visitors;
 using System.Collections.Immutable;
 
-namespace Lexer.Rules;
-public abstract class DependencyRuleBase : RuleBase, IDependencyRule
+namespace Lexer.Rules.Depended;
+public abstract class DependedRuleBase : RuleBase, IDependedRule
 {
     private readonly Dictionary<IRule, string[]> _dependencies = new();
 
     public ImmutableDictionary<IRule, string[]> Dependencies => _dependencies.ToImmutableDictionary();
 
-    protected DependencyRuleBase(string type, bool isIgnored = false, bool isOnlyForDependentRules = false, bool isEnabled = true) : base(type, isIgnored, isOnlyForDependentRules, isEnabled) { }
+    protected DependedRuleBase(IRuleSettings ruleSettings) : base(ruleSettings) { }
 
     public void AddDependency(IRule rule, params string[] names)
     {

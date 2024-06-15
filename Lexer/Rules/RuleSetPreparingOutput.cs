@@ -4,9 +4,9 @@ using System.Collections.Immutable;
 namespace Lexer.Rules;
 public class RuleSetPreparingOutput
 {
-    public ImmutableList<KeyValuePair<IDependencyRule, IRule>> RemovedDependencies { get; init; }
+    public ImmutableList<KeyValuePair<IDependedRule, IRule>> RemovedDependencies { get; init; }
 
-    public RuleSetPreparingOutput(IEnumerable<KeyValuePair<IDependencyRule, IRule>> removedDependencies)
+    public RuleSetPreparingOutput(IEnumerable<KeyValuePair<IDependedRule, IRule>> removedDependencies)
     {
         RemovedDependencies = removedDependencies.ToImmutableList();
     }

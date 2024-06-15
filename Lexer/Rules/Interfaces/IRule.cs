@@ -1,5 +1,4 @@
 ﻿using Lexer.Rules.RawResults;
-using Lexer.Rules.RuleInputs;
 using Lexer.Rules.Visitors;
 
 namespace Lexer.Rules.Interfaces;

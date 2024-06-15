@@ -6,7 +6,7 @@ namespace Lexer.Rules.Visitors;
 public class Visitor : IVisitor
 {
     public IRuleInput Rule(VisitorInput visitorInput) => new RuleInput(visitorInput.Text);
-    public IDependencyRuleInput DependencyRule(VisitorInput visitorInput, IDependencyRule rule)
+    public IDependedRuleInput DependencyRule(VisitorInput visitorInput, IDependedRule rule)
     {
         Dictionary<IRule, AnalyzedLayer> dependencies = new();
         foreach (IRule dependencyRule in rule.Dependencies.Keys)

@@ -1,4 +1,6 @@
-﻿namespace Lexer.Rules.RuleInputs;
+﻿using Lexer.Rules.Interfaces;
+
+namespace Lexer.Rules.RuleInputs;
 public class RuleInput : IRuleInput
 {
     public string Text { get; init; }

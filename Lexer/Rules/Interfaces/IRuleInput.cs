@@ -1,4 +1,4 @@
-﻿namespace Lexer.Rules.RuleInputs;
+﻿namespace Lexer.Rules.Interfaces;
 public interface IRuleInput
 {
     /// <summary>

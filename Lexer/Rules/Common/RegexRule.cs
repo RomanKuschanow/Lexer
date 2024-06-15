@@ -3,9 +3,8 @@ using System.Runtime.InteropServices.Marshalling;
 using System.Text.RegularExpressions;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.RuleInputs;
 
-namespace Lexer.Rules;
+namespace Lexer.Rules.Common;
 public class RegexRule : RuleBase
 {
     private Regex _regex;
@@ -20,7 +19,7 @@ public class RegexRule : RuleBase
     public Regex Regex
     {
         get => _regex;
-        set => _regex = value ?? throw new ArgumentNullException(nameof(value)); 
+        set => _regex = value ?? throw new ArgumentNullException(nameof(value));
     }
 
     /// <summary>
@@ -31,7 +30,7 @@ public class RegexRule : RuleBase
     /// <param name="isIgnored">Optional. Specifies whether lexemes found by this rule should be ignored in the output. Defaults to false.</param>
     /// <param name="isEnabled">Optional. Specifies whether this rule is enabled and should be used in the lexeme identification process. Defaults to true.</param>
     /// <exception cref="ArgumentNullException">Thrown when a null regex or type is passed to the constructor.</exception>
-    public RegexRule(Regex regex, string type, bool isIgnored = false, bool isOnlyForDependentRules = false, bool isEnabled = true) : base(type, isIgnored, isOnlyForDependentRules, isEnabled)
+    public RegexRule(Regex regex, IRuleSettings ruleSettings) : base(ruleSettings)
     {
         Regex = regex;
     }
