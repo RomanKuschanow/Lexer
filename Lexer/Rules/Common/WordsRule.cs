@@ -1,20 +1,13 @@
 ﻿#nullable disable
 
 using System.Text.RegularExpressions;
+using Lexer.Rules.Interfaces;
+using Lexer.Rules.RawResults;
 
-namespace Lexer.Rules;
-public class WordsRule : IRule
+namespace Lexer.Rules.Common;
+public class WordsRule : RuleBase
 {
-    private string _type;
     private IEnumerable<string> _words;
-
-    public string Type
-    {
-        get => _type;
-        set => _type = value ?? throw new ArgumentNullException(nameof(value));
-    }
-    public bool IsIgnored { get; set; }
-    public bool IsEnabled { get; set; }
 
     /// <summary>
     /// Gets or sets the collection of words used for matching in the text.
@@ -30,15 +23,11 @@ public class WordsRule : IRule
     /// Initializes a new instance of the <see cref="WordsRule"/> class with specified words, rule type, and settings.
     /// </summary>
     /// <param name="words">The collection of words to use for lexeme identification.</param>
-    /// <param name="type">The type name of the rule.</param>
-    /// <param name="isIgnored">Optional. Indicates whether lexemes found should be ignored. Defaults to false.</param>
-    /// <param name="isEnabled">Optional. Indicates whether the rule is active. Defaults to true.</param>
-    public WordsRule(IEnumerable<string> words, string type, bool isIgnored = false, bool isEnabled = true)
+    /// <param name="ruleSettings">The settings for the rule.</param>
+    /// <exception cref="ArgumentNullException">Thrown when a null words or ruleSettings is passed to the constructor.</exception>
+    public WordsRule(IEnumerable<string> words, IRuleSettings ruleSettings) : base(ruleSettings)
     {
         Words = words;
-        Type = type;
-        IsIgnored = isIgnored;
-        IsEnabled = isEnabled;
     }
 
     /// <summary>
@@ -46,10 +35,10 @@ public class WordsRule : IRule
     /// </summary>
     /// <returns>A task that yields an AnalyzedLayer containing the identified lexemes.</returns>
     /// This method constructs a regex from the words and finds matches in the text.
-    public async Task<AnalyzedLayer> FindLexemes(string str, CancellationToken ct = default)
+    public override async Task<AnalyzedLayer> FindLexemes(IRuleInput input, CancellationToken ct = default)
     {
-        var matches = Regex.Matches(str, $@"\b{string.Join('|', Words)}\b");
+        var matches = Regex.Matches(input.Text, $@"\b{string.Join('|', Words)}\b");
 
-        return await Task.FromResult(new AnalyzedLayer(matches.Select(m => new RawLexeme(m.Index, m.Length, this))));
+        return await AnalyzedLayer.FromIEnumerable(matches.Select(m => new RawLexeme(m.Index, m.Length, this)));
     }
 }
