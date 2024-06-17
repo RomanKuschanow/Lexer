@@ -1,6 +1,7 @@
 ﻿#nullable disable
 using Lexer;
 using Lexer.Exceptions;
+using Lexer.Extensions;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
 using System.Diagnostics.CodeAnalysis;
@@ -83,7 +84,7 @@ public class DependedRegexRule : DependedRuleBase
                                      .Distinct()
                                      .Intersect(uniqueNamesInPattern);
 
-        if (!validNames.SequenceEqual(uniqueNamesInPattern))
+        if (!validNames.ScrambledEquals(uniqueNamesInPattern))
             throw new RegexDependencyException(uniqueNamesInPattern.Except(validNames));
 
         var uniquePointers = uniqueNamesInPattern.ToDictionary(n => n, n => new Pointer(dInput.Dependencies[Dependencies.Single(d => d.Value.Contains(n)).Key].Select(l => input.Text.Substring(l.Start, l.Length)).Distinct()));
@@ -123,7 +124,7 @@ public class DependedRegexRule : DependedRuleBase
 
                 var distinctListOfPointers = replacePointers.Distinct().ToList();
                 int index = 0;
-                while (index < distinctListOfPointers.Count && distinctListOfPointers[index].Index == distinctListOfPointers[index].Length)
+                while (index < distinctListOfPointers.Count && distinctListOfPointers[index].Index == distinctListOfPointers[index].Length - 1)
                 {
                     distinctListOfPointers[index].Index = 0;
                     index++;
