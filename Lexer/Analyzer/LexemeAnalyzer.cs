@@ -74,6 +74,12 @@ public class LexemeAnalyzer
 
                 startIndex = selectedLexeme.Start + selectedLexeme.Length;
             }
+
+            if (startIndex < text.Length)
+            {
+                var (ln, ch) = GetLineAndCharacter(startIndex);
+                errors.Add(new(ln, ch, text.Length - startIndex));
+            }
         }, ct);
 
         return new(lexemes, errors);
@@ -82,7 +88,7 @@ public class LexemeAnalyzer
         {
             int ln = text[..index].Where(ch => ch == '\n').Count() + 1;
             int lastIndexOfNewLine = text[..(index + 1)].LastIndexOf('\n');
-            int ch = index - (lastIndexOfNewLine > -1 ? lastIndexOfNewLine : 0);
+            int ch = index - (lastIndexOfNewLine > -1 ? lastIndexOfNewLine : 0) + 1;
             return (ln, ch);
         }
     }
