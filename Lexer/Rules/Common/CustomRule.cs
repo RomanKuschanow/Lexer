@@ -23,9 +23,8 @@ public class CustomRule : RuleBase
     /// Initializes a new instance of the <see cref="CustomRule"/> class with a custom function for lexeme identification.
     /// </summary>
     /// <param name="func">The function that defines how to find lexemes.</param>
-    /// <param name="type">The type name of the rule.</param>
-    /// <param name="isIgnored">Optional. Indicates whether lexemes found should be ignored. Defaults to false.</param>
-    /// <param name="isEnabled">Optional. Indicates whether the rule is active. Defaults to true.</param>
+    /// <param name="ruleSettings">The settings for the rule.</param>
+    /// <exception cref="ArgumentNullException">Thrown when a null func or ruleSettings is passed to the constructor.</exception>
     public CustomRule(Func<IRuleInput, CancellationToken, IRule, Task<AnalyzedLayer>> func, IRuleSettings ruleSettings) : base(ruleSettings)
     {
         Func = func;

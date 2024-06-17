@@ -26,10 +26,8 @@ public class RegexRule : RuleBase
     /// Initializes a new instance of the <see cref="RegexRule"/> class using the specified regex pattern and rule type.
     /// </summary>
     /// <param name="regex">The regex pattern used to identify lexemes in text. This cannot be null.</param>
-    /// <param name="type">The name of the rule, which corresponds to the type of lexemes identified by this regex.</param>
-    /// <param name="isIgnored">Optional. Specifies whether lexemes found by this rule should be ignored in the output. Defaults to false.</param>
-    /// <param name="isEnabled">Optional. Specifies whether this rule is enabled and should be used in the lexeme identification process. Defaults to true.</param>
-    /// <exception cref="ArgumentNullException">Thrown when a null regex or type is passed to the constructor.</exception>
+    /// <param name="ruleSettings">The settings for the rule.</param>
+    /// <exception cref="ArgumentNullException">Thrown when a null regex or ruleSettings is passed to the constructor.</exception>
     public RegexRule(Regex regex, IRuleSettings ruleSettings) : base(ruleSettings)
     {
         Regex = regex;

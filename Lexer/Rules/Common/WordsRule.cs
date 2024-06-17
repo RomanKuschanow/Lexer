@@ -23,9 +23,8 @@ public class WordsRule : RuleBase
     /// Initializes a new instance of the <see cref="WordsRule"/> class with specified words, rule type, and settings.
     /// </summary>
     /// <param name="words">The collection of words to use for lexeme identification.</param>
-    /// <param name="type">The type name of the rule.</param>
-    /// <param name="isIgnored">Optional. Indicates whether lexemes found should be ignored. Defaults to false.</param>
-    /// <param name="isEnabled">Optional. Indicates whether the rule is active. Defaults to true.</param>
+    /// <param name="ruleSettings">The settings for the rule.</param>
+    /// <exception cref="ArgumentNullException">Thrown when a null words or ruleSettings is passed to the constructor.</exception>
     public WordsRule(IEnumerable<string> words, IRuleSettings ruleSettings) : base(ruleSettings)
     {
         Words = words;
