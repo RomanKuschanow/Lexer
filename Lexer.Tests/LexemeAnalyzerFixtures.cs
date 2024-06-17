@@ -1,15 +1,10 @@
-﻿using Lexer.Analyzer;
+﻿using FluentAssertions;
+using Lexer.Analyzer;
+using Lexer.Rules;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
 using Lexer.Rules.Visitors;
-using Lexer.Rules;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
 
 namespace Lexer.Tests;
 public class LexemeAnalyzerFixtures
