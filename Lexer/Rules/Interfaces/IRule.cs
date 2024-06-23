@@ -1,5 +1,5 @@
-﻿using Lexer.Rules.RawResults;
-using Lexer.Rules.Visitors;
+﻿using Lexer.Rules.RawResults.Interfaces;
+using Lexer.Rules.RuleInputs.Interfaces;
 
 namespace Lexer.Rules.Interfaces;
 public interface IRule
@@ -31,8 +31,6 @@ public interface IRule
     /// <param name="input">The input to be analyzed.</param>
     /// <param name="ct">Cancellation token to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation and contains the analyzed lexemes.</returns>
-    Task<AnalyzedLayer> FindLexemes(IRuleInput input, CancellationToken ct);
-
-    IRuleInput Accept(IVisitor visitor, VisitorInput visitorInput);
+    IEnumerable<IRawLexeme> FindLexemes(IRuleInput input);
 }
 

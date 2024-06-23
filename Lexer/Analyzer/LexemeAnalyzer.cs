@@ -1,52 +1,49 @@
 ﻿#nullable disable
+using Lexer.Analyzer.IntermediateData;
+using Lexer.Analyzer.Middleware;
 using Lexer.Rules;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.Visitors;
+using Lexer.Rules.RawResults.Interfaces;
+using Lexer.Rules.RuleInputs;
 using System.Data;
 
 namespace Lexer.Analyzer;
 public class LexemeAnalyzer
 {
     public RuleSet Rules { get; set; }
+    public MiddlewareCollection Middleware { get; set; }
+    public RuleInputFactory RuleInputFactory { get; set; }
+    public RawLayerFactory RawLayerFactory { get; set; }
 
-    public LexemeAnalyzerOptions Options { get; set; }
-
-    public LexemeAnalyzer(RuleSet rules = null!, LexemeAnalyzerOptions options = null!)
+    public LexemeAnalyzer(RuleSet rules = null, MiddlewareCollection middleware = null, RuleInputFactory ruleInputFactory = null!, RawLayerFactory rawLayerFactory = null!)
     {
         Rules = rules ?? new();
-        Options = options ?? new();
+        Middleware = middleware ?? new();
+        RuleInputFactory = ruleInputFactory ?? new();
+        RawLayerFactory = rawLayerFactory ?? new();
     }
 
     public async Task<AnalyzeResult> Analyze(string text, int maxDegreeOfParallelism = 10, CancellationToken ct = default)
     {
-        await Rules.PrepareRules();
+        Rules.PrepareRules();
 
-        using var semaphore = new SemaphoreSlim(maxDegreeOfParallelism);
+        Dictionary<IRule, RawLayer> layersDict = new();
+        IntermediateDataCollection intermediateDataCollection = new();
+        intermediateDataCollection.Add(new InputTextIntermediateData(text));
 
-        Dictionary<IRule, AnalyzedLayer> layersDict = new();
-        VisitorInput visitorInput = new(text, layersDict);
-        Visitor visitor = new();
-
-        var tasks = Rules.Select(async r =>
+        var layers = Rules.Select(rule =>
         {
-            await semaphore.WaitAsync(ct);
-            try
-            {
-                var input = r.Accept(visitor, visitorInput);
+            var input = RuleInputFactory.CreateInput(rule.GetType(), intermediateDataCollection);
 
-                var result = await r.FindLexemes(input, ct);
-                layersDict.Add(r, result);
+            var rawLexemes = rule.FindLexemes(input);
 
-                return result;
-            }
-            finally
-            {
-                semaphore.Release();
-            }
-        });
+            var layer = RawLayerFactory.CreateRawLayer(rawLexemes, rule);
 
-        var layers = await Task.WhenAll(tasks);
+            Middleware.Get(rule.GetType())?.Execute(rule, input, layer, intermediateDataCollection);
+
+            return layer;
+        }).Where(layer => !layer.Rule.IsOnlyForDependentRules);
 
         List<Lexeme> lexemes = new();
         List<UnrecognizedPart> errors = new();
@@ -54,9 +51,9 @@ public class LexemeAnalyzer
         await Task.Run(() =>
         {
             int startIndex = 0;
-            IEnumerable<RawLexeme> candidates;
-            while ((candidates = layers.Select(l => l.FirstOrDefault(r => r.Start >= startIndex))
-                                       .Where(l => l is not null && !l.Rule.IsOnlyForDependentRules).Cast<RawLexeme>()).Any())
+            IEnumerable<IRawLexeme> candidates;
+            while ((candidates = layers.Select(layer => layer.RawLexemes.FirstOrDefault(lexeme => lexeme.Start >= startIndex))
+                                       .Where(l => l is not null).Cast<RawLexeme>()).Any())
             {
                 var selectedLexeme = candidates.First();
                 foreach (var lexeme in candidates.Skip(1))

@@ -1,6 +1,8 @@
-﻿using System.Collections.Immutable;
+﻿using Lexer.Rules.Interfaces;
+using Lexer.Rules.RawResults.Interfaces;
+using System.Collections.Immutable;
 
-namespace Lexer.Rules.Interfaces;
+namespace Lexer.Rules.RuleInputs.Interfaces;
 public interface IDependedRule : IRule
 {
     ImmutableDictionary<IRule, string[]> Dependencies { get; }
@@ -12,4 +14,6 @@ public interface IDependedRule : IRule
     void RemoveDependency(IRule rule);
 
     void ClearDependencies();
+
+    IEnumerable<IRawLexeme> FindLexemes(IDependedRuleInput input);
 }

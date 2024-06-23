@@ -2,13 +2,8 @@
 using Lexer.Rules.Common;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.Visitors;
+using Lexer.Rules.RuleInputs.Interfaces;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lexer.Tests.CommonRulesTests;
 public class CustomRuleFixtures
@@ -17,7 +12,7 @@ public class CustomRuleFixtures
     public void GivenValidInputs_WhenCreatingInstance_ThenPropertiesAreSetCorrectly()
     {
         // Arrange
-        Func<IRuleInput, CancellationToken, IRule, Task<AnalyzedLayer>> func = async (input, ct, rule) => await AnalyzedLayer.FromIEnumerable(new List<RawLexeme>());
+        Func<IRuleInput, CancellationToken, IRule, Task<RawLayer>> func = async (input, ct, rule) => await RawLayer.FromIEnumerable(new List<RawLexeme>());
         var mockRuleSettings = new Mock<IRuleSettings>();
         mockRuleSettings.SetupGet(x => x.Type).Returns("custom");
         mockRuleSettings.SetupGet(x => x.IsIgnored).Returns(false);
@@ -62,9 +57,9 @@ public class CustomRuleFixtures
             new RawLexeme(5, 2, null)
         };
 
-        Func<IRuleInput, CancellationToken, IRule, Task<AnalyzedLayer>> func = async (input, ct, rule) =>
+        Func<IRuleInput, CancellationToken, IRule, Task<RawLayer>> func = async (input, ct, rule) =>
         {
-            return await AnalyzedLayer.FromIEnumerable(expectedLexemes);
+            return await RawLayer.FromIEnumerable(expectedLexemes);
         };
 
         var mockRuleSettings = new Mock<IRuleSettings>();
@@ -89,7 +84,7 @@ public class CustomRuleFixtures
     public void GivenVisitorAndVisitorInput_WhenAccept_ThenCallsVisitorRule()
     {
         // Arrange
-        Func<IRuleInput, CancellationToken, IRule, Task<AnalyzedLayer>> func = async (input, ct, rule) => await AnalyzedLayer.FromIEnumerable(new List<RawLexeme>());
+        Func<IRuleInput, CancellationToken, IRule, Task<RawLayer>> func = async (input, ct, rule) => await RawLayer.FromIEnumerable(new List<RawLexeme>());
         var mockRuleSettings = new Mock<IRuleSettings>();
         mockRuleSettings.SetupGet(x => x.Type).Returns("custom");
         mockRuleSettings.SetupGet(x => x.IsIgnored).Returns(false);
@@ -98,8 +93,8 @@ public class CustomRuleFixtures
 
         var sut = new CustomRule(func, mockRuleSettings.Object);
 
-        var mockVisitor = new Mock<IVisitor>();
-        var visitorInput = new VisitorInput("sample text", new Dictionary<IRule, AnalyzedLayer>());
+        var mockVisitor = new Mock<IRuleVisitor>();
+        var visitorInput = new VisitorInput("sample text", new Dictionary<IRule, RawLayer>());
 
         // Act
         sut.Accept(mockVisitor.Object, visitorInput);

@@ -1,4 +1,5 @@
 ﻿using Lexer.Rules.Interfaces;
+using Lexer.Rules.RuleInputs.Interfaces;
 using System.Collections.Immutable;
 
 namespace Lexer.Rules;

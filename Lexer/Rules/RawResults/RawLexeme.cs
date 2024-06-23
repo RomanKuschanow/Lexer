@@ -1,11 +1,12 @@
 ﻿using Lexer.Rules.Interfaces;
+using Lexer.Rules.RawResults.Interfaces;
 
 namespace Lexer.Rules.RawResults;
 /// <summary>
 /// Represents a raw lexeme identified in the text before final processing.
 /// This includes its position, length, and the rule used to identify it.
 /// </summary>
-public record RawLexeme
+public record RawLexeme : IRawLexeme
 {
     /// <summary>
     /// Gets the starting position of the lexeme within the text.

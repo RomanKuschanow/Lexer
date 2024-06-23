@@ -1,8 +1,8 @@
 ﻿#nullable disable
-using Lexer;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using System.ComponentModel.DataAnnotations;
+using Lexer.Rules.RawResults.Interfaces;
+using Lexer.Rules.RuleInputs.Interfaces;
 using System.Text.RegularExpressions;
 
 namespace Lexer.Rules.Common;
@@ -38,39 +38,44 @@ public class DelimiterRule : RuleBase
     /// <param name="endDelimiter">The regex pattern used to identify the end delimiter.</param>
     /// <param name="ruleSettings">The settings for the rule.</param>
     /// <exception cref="ArgumentNullException">Thrown when a null startDelimiter, endDelimiter, or ruleSettings is passed to the constructor.</exception>
-    public DelimiterRule(Regex startDelimiter, Regex endDelimiter, IRuleSettings ruleSettings) : base(ruleSettings)
+    public DelimiterRule(Regex startDelimiter, Regex endDelimiter, string type, IRuleSettings ruleSettings) : base(type, ruleSettings)
     {
         StartDelimiter = startDelimiter;
         EndDelimiter = endDelimiter;
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="DelimiterRule"/> class with specified start and end delimiters, rule type, and settings.
+    /// </summary>
+    /// <param name="startDelimiter">The regex pattern used to identify the start delimiter.</param>
+    /// <param name="endDelimiter">The regex pattern used to identify the end delimiter.</param>
+    /// <exception cref="ArgumentNullException">Thrown when a null startDelimiter, endDelimiter, or ruleSettings is passed to the constructor.</exception>
+    public DelimiterRule(Regex startDelimiter, Regex endDelimiter, string type) : this(startDelimiter, endDelimiter, type, new CommonRuleSettings()) { }
+
+    /// <summary>
     /// Asynchronously identifies lexemes that are enclosed by the specified start and end delimiters in the text.
     /// </summary>
     /// <returns>A task that yields an AnalyzedLayer containing the identified lexemes.</returns>
-    public override async Task<AnalyzedLayer> FindLexemes(IRuleInput input, CancellationToken ct = default)
+    public override IEnumerable<IRawLexeme> FindLexemes(IRuleInput input)
     {
         List<RawLexeme> lexemes = new();
 
-        await Task.Run(() =>
+        int index = 0;
+        while (index < input.Text.Length)
         {
-            int index = 0;
-            while (index < input.Text.Length)
-            {
-                var startMatch = StartDelimiter.Match(input.Text, index);
-                if (!startMatch.Success)
-                    break;
+            var startMatch = StartDelimiter.Match(input.Text, index);
+            if (!startMatch.Success)
+                break;
 
-                var endMatch = EndDelimiter.Match(input.Text, startMatch.Index);
-                if (!endMatch.Success)
-                    break;
+            var endMatch = EndDelimiter.Match(input.Text, startMatch.Index);
+            if (!endMatch.Success)
+                break;
 
-                lexemes.Add(new(startMatch.Index, endMatch.Index + endMatch.Length - startMatch.Index, this));
+            lexemes.Add(new(startMatch.Index, endMatch.Index + endMatch.Length - startMatch.Index));
 
-                index = startMatch.Index + 1;
-            }
-        }, ct);
+            index = startMatch.Index + 1;
+        }
 
-        return await AnalyzedLayer.FromIEnumerable(lexemes);
+        return lexemes;
     }
 }

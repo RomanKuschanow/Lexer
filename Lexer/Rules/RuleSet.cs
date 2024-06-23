@@ -1,4 +1,5 @@
 ﻿using Lexer.Rules.Interfaces;
+using Lexer.Rules.RuleInputs.Interfaces;
 using System.Collections;
 
 namespace Lexer.Rules;
@@ -21,20 +22,17 @@ public class RuleSet : IEnumerable<IRule>
 
     public RuleSet(IEnumerable<IRule> rules) => _rules = rules.ToList();
 
-    public async Task PrepareRules()
+    public void PrepareRules()
     {
-        await Task.Run(() =>
+        foreach (IDependedRule rule in this.Where(r => r is IDependedRule).Cast<IDependedRule>())
         {
-            foreach (IDependedRule rule in this.Where(r => r is IDependedRule).Cast<IDependedRule>())
+            int ruleIndex = _rules.IndexOf(rule);
+            foreach (IRule dependency in rule.Dependencies.Select(d => d.Key))
             {
-                int ruleIndex = _rules.IndexOf(rule);
-                foreach (IRule dependency in rule.Dependencies.Select(d => d.Key))
-                {
-                    if (!this.Contains(dependency) || _rules.IndexOf(dependency) > ruleIndex)
-                        RemoveDependency(rule, dependency);
-                }
+                if (!this.Contains(dependency) || _rules.IndexOf(dependency) > ruleIndex)
+                    RemoveDependency(rule, dependency);
             }
-        });
+        }
     }
 
     public void AddDependency(IDependedRule to, IRule rule)
@@ -42,8 +40,8 @@ public class RuleSet : IEnumerable<IRule>
         ArgumentNullException.ThrowIfNull(to);
         ArgumentNullException.ThrowIfNull(rule);
 
-        if (!this.Contains(to)) throw new ArgumentException("\"to\" must be in this RuleSet", nameof(to));
-        if (!this.Contains(rule)) throw new ArgumentException("\"rule\" must be in this RuleSet", nameof(rule));
+        if (!this.Contains(to)) throw new ArgumentException("'to' must be in current RuleSet", nameof(to));
+        if (!this.Contains(rule)) throw new ArgumentException("'rule' must be in current RuleSet", nameof(rule));
 
         to.AddDependency(rule);
     }
@@ -52,11 +50,18 @@ public class RuleSet : IEnumerable<IRule>
         ArgumentNullException.ThrowIfNull(to);
         ArgumentNullException.ThrowIfNull(rule);
 
-        if (!this.Contains(to)) throw new ArgumentException("\"to\" must be in this RuleSet", nameof(to));
+        if (!this.Contains(to)) throw new ArgumentException("'to' must be in current RuleSet", nameof(to));
 
         to.RemoveDependency(rule);
     }
-    public void ClearDependencies(IDependedRule rule) => rule.ClearDependencies();
+    public void ClearDependencies(IDependedRule rule)
+    {
+        ArgumentNullException.ThrowIfNull(rule);
+
+        if (!this.Contains(rule)) throw new ArgumentException("'rule' must be in current RuleSet", nameof(rule));
+
+        rule.ClearDependencies();
+    }
 
     public void Add(IRule rule) => _rules.Add(rule);
     public void Insert(int index, IRule rule) => _rules.Insert(index, rule);

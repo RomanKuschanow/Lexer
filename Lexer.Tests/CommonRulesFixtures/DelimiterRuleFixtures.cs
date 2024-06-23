@@ -2,7 +2,7 @@
 using Lexer.Rules.Common;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.Visitors;
+using Lexer.Rules.RuleInputs.Interfaces;
 using Moq;
 using System.Text.RegularExpressions;
 
@@ -108,8 +108,8 @@ public class DelimiterRuleFixtures
 
         var sut = new DelimiterRule(startDelimiter, endDelimiter, mockRuleSettings.Object);
 
-        var mockVisitor = new Mock<IVisitor>();
-        var visitorInput = new VisitorInput("sample text", new Dictionary<IRule, AnalyzedLayer>());
+        var mockVisitor = new Mock<IRuleVisitor>();
+        var visitorInput = new VisitorInput("sample text", new Dictionary<IRule, RawLayer>());
 
         // Act
         sut.Accept(mockVisitor.Object, visitorInput);

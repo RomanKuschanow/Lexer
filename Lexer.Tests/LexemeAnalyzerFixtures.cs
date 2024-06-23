@@ -3,7 +3,7 @@ using Lexer.Analyzer;
 using Lexer.Rules;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.Visitors;
+using Lexer.Rules.RuleInputs.Interfaces;
 using Moq;
 
 namespace Lexer.Tests;
@@ -19,22 +19,22 @@ public class LexemeAnalyzerFixtures
         var mockRuleInput1 = new Mock<IRuleInput>();
         var mockRuleInput2 = new Mock<IRuleInput>();
 
-        mockRule1.Setup(r => r.Accept(It.IsAny<IVisitor>(), It.IsAny<VisitorInput>()))
+        mockRule1.Setup(r => r.Accept(It.IsAny<IRuleVisitor>(), It.IsAny<VisitorInput>()))
                  .Returns(mockRuleInput1.Object);
 
         mockRule1.Setup(r => r.FindLexemes(It.IsAny<IRuleInput>(), It.IsAny<CancellationToken>()))
-                 .ReturnsAsync(await AnalyzedLayer.FromIEnumerable(new List<RawLexeme>
+                 .ReturnsAsync(await RawLayer.FromIEnumerable(new List<RawLexeme>
                  {
                      new RawLexeme(0, 4, mockRule1.Object) // test
                  }));
         mockRule1.SetupProperty(r => r.IsEnabled, true);
         mockRule1.SetupProperty(r => r.Type, "test");
 
-        mockRule2.Setup(r => r.Accept(It.IsAny<IVisitor>(), It.IsAny<VisitorInput>()))
+        mockRule2.Setup(r => r.Accept(It.IsAny<IRuleVisitor>(), It.IsAny<VisitorInput>()))
                  .Returns(mockRuleInput2.Object);
 
         mockRule2.Setup(r => r.FindLexemes(It.IsAny<IRuleInput>(), It.IsAny<CancellationToken>()))
-                 .ReturnsAsync(await AnalyzedLayer.FromIEnumerable(new List<RawLexeme>
+                 .ReturnsAsync(await RawLayer.FromIEnumerable(new List<RawLexeme>
                  {
                      new RawLexeme(5, 3, mockRule2.Object) // foo
                  }));
@@ -63,11 +63,11 @@ public class LexemeAnalyzerFixtures
 
         var mockRuleInput = new Mock<IRuleInput>();
 
-        mockRule.Setup(r => r.Accept(It.IsAny<IVisitor>(), It.IsAny<VisitorInput>()))
+        mockRule.Setup(r => r.Accept(It.IsAny<IRuleVisitor>(), It.IsAny<VisitorInput>()))
                 .Returns(mockRuleInput.Object);
 
         mockRule.Setup(r => r.FindLexemes(It.IsAny<IRuleInput>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(await AnalyzedLayer.FromIEnumerable(new List<RawLexeme>
+                .ReturnsAsync(await RawLayer.FromIEnumerable(new List<RawLexeme>
                 {
                     new RawLexeme(0, 4, mockRule.Object) // test
                 }));
@@ -119,11 +119,11 @@ public class LexemeAnalyzerFixtures
 
         var mockRuleInput = new Mock<IRuleInput>();
 
-        mockRule.Setup(r => r.Accept(It.IsAny<IVisitor>(), It.IsAny<VisitorInput>()))
+        mockRule.Setup(r => r.Accept(It.IsAny<IRuleVisitor>(), It.IsAny<VisitorInput>()))
                 .Returns(mockRuleInput.Object);
 
         mockRule.Setup(r => r.FindLexemes(It.IsAny<IRuleInput>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(await AnalyzedLayer.FromIEnumerable(new List<RawLexeme>
+                .ReturnsAsync(await RawLayer.FromIEnumerable(new List<RawLexeme>
                 {
                     new RawLexeme(0, 4, mockRule.Object) // test
                 }));

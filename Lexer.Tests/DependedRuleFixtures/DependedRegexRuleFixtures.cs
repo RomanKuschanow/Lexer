@@ -2,15 +2,10 @@
 using Lexer.Rules.Depended;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.Visitors;
+using Lexer.Rules.RuleInputs.Interfaces;
 using Moq;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Lexer.Tests.DependedRuleFixtures;
 public class DependedRegexRuleFixtures
@@ -58,12 +53,12 @@ public class DependedRegexRuleFixtures
 
         var mockRule1 = new Mock<IRule>();
         var mockRule2 = new Mock<IRule>();
-        var analyzedLayer1 = await AnalyzedLayer.FromIEnumerable(new List<RawLexeme>
+        var analyzedLayer1 = await RawLayer.FromIEnumerable(new List<RawLexeme>
         {
             new RawLexeme(0, 4, mockRule1.Object), // test
             new RawLexeme(9, 3, mockRule2.Object) // bar
         });
-        var analyzedLayer2 = await AnalyzedLayer.FromIEnumerable(new List<RawLexeme>
+        var analyzedLayer2 = await RawLayer.FromIEnumerable(new List<RawLexeme>
         {
             new RawLexeme(5, 3, mockRule1.Object),  // foo
             new RawLexeme(13, 3, mockRule2.Object) // baz
@@ -74,7 +69,7 @@ public class DependedRegexRuleFixtures
 
         var mockInput = new Mock<IDependedRuleInput>();
         mockInput.SetupGet(x => x.Text).Returns("test foo bar baz");
-        mockInput.SetupGet(x => x.Dependencies).Returns(new Dictionary<IRule, AnalyzedLayer>
+        mockInput.SetupGet(x => x.Dependencies).Returns(new Dictionary<IRule, RawLayer>
         {
             { mockRule1.Object, analyzedLayer1 },
             { mockRule2.Object, analyzedLayer2 }
@@ -99,11 +94,11 @@ public class DependedRegexRuleFixtures
 
         var mockRule1 = new Mock<IRule>();
         var mockRule2 = new Mock<IRule>();
-        var analyzedLayer1 = await AnalyzedLayer.FromIEnumerable(new List<RawLexeme>
+        var analyzedLayer1 = await RawLayer.FromIEnumerable(new List<RawLexeme>
         {
             new RawLexeme(0, 4, mockRule1.Object), // test
         });
-        var analyzedLayer2 = await AnalyzedLayer.FromIEnumerable(new List<RawLexeme>
+        var analyzedLayer2 = await RawLayer.FromIEnumerable(new List<RawLexeme>
         {
             new RawLexeme(5, 3, mockRule1.Object),  // foo
             new RawLexeme(14, 3, mockRule1.Object)  // foo
@@ -114,7 +109,7 @@ public class DependedRegexRuleFixtures
 
         var mockInput = new Mock<IDependedRuleInput>();
         mockInput.SetupGet(x => x.Text).Returns("test foo test foo");
-        mockInput.SetupGet(x => x.Dependencies).Returns(new Dictionary<IRule, AnalyzedLayer>
+        mockInput.SetupGet(x => x.Dependencies).Returns(new Dictionary<IRule, RawLayer>
         {
             { mockRule1.Object, analyzedLayer1 },
             { mockRule2.Object, analyzedLayer2 }
@@ -137,7 +132,7 @@ public class DependedRegexRuleFixtures
         var sut = new DependedRegexRule(pattern, ruleSettings);
 
         var mockRule1 = new Mock<IRule>();
-        var analyzedLayer1 = await AnalyzedLayer.FromIEnumerable(new List<RawLexeme>
+        var analyzedLayer1 = await RawLayer.FromIEnumerable(new List<RawLexeme>
         {
             new RawLexeme(0, 4, mockRule1.Object), // test
             new RawLexeme(5, 3, mockRule1.Object)  // foo
@@ -147,7 +142,7 @@ public class DependedRegexRuleFixtures
 
         var mockInput = new Mock<IDependedRuleInput>();
         mockInput.SetupGet(x => x.Text).Returns("test foo test foo");
-        mockInput.SetupGet(x => x.Dependencies).Returns(new Dictionary<IRule, AnalyzedLayer>
+        mockInput.SetupGet(x => x.Dependencies).Returns(new Dictionary<IRule, RawLayer>
         {
             { mockRule1.Object, analyzedLayer1 }
         }.ToImmutableDictionary());
@@ -187,8 +182,8 @@ public class DependedRegexRuleFixtures
         var ruleSettings = new DependedRegexRuleSettings("depended", DependedRuleOptions.None);
         var sut = new DependedRegexRule(pattern, ruleSettings);
 
-        var mockVisitor = new Mock<IVisitor>();
-        var visitorInput = new VisitorInput("sample text", new Dictionary<IRule, AnalyzedLayer>());
+        var mockVisitor = new Mock<IRuleVisitor>();
+        var visitorInput = new VisitorInput("sample text", new Dictionary<IRule, RawLayer>());
 
         // Act
         sut.Accept(mockVisitor.Object, visitorInput);

@@ -1,8 +1,7 @@
 ﻿#nullable disable
-using Lexer;
 using Lexer.Rules.Interfaces;
-using Lexer.Rules.RawResults;
-using Lexer.Rules.Visitors;
+using Lexer.Rules.RawResults.Interfaces;
+using Lexer.Rules.RuleInputs.Interfaces;
 
 namespace Lexer.Rules.Common;
 public abstract class RuleBase : IRule
@@ -18,17 +17,15 @@ public abstract class RuleBase : IRule
     public bool IsOnlyForDependentRules { get; set; }
     public bool IsEnabled { get; set; }
 
-    protected RuleBase(IRuleSettings ruleSettings)
+    protected RuleBase(string type, IRuleSettings ruleSettings)
     {
         ArgumentNullException.ThrowIfNull(ruleSettings);
 
-        Type = ruleSettings.Type;
+        Type = type;
         IsIgnored = ruleSettings.IsIgnored;
         IsOnlyForDependentRules = ruleSettings.IsOnlyForDependentRules;
         IsEnabled = ruleSettings.IsEnabled;
     }
 
-    public abstract Task<AnalyzedLayer> FindLexemes(IRuleInput input, CancellationToken ct);
-
-    public IRuleInput Accept(IVisitor visitor, VisitorInput visitorInput) => visitor.Rule(visitorInput);
+    public abstract IEnumerable<IRawLexeme> FindLexemes(IRuleInput input);
 }
