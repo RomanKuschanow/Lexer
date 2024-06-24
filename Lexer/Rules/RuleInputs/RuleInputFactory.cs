@@ -5,9 +5,9 @@ using Lexer.Rules.RuleInputs.Interfaces;
 namespace Lexer.Rules.RuleInputs;
 public class RuleInputFactory
 {
-    private Dictionary<Type, IRuleInputCreator> InputCreators = [];
+    private Dictionary<Type, IRuleInputCreator> _inputCreators = [];
 
-    public bool AddConcreteCreator(IRuleInputCreator inputCreator) => InputCreators.TryAdd(inputCreator.GetType(), inputCreator);
+    public bool AddConcreteCreator(IRuleInputCreator inputCreator) => _inputCreators.TryAdd(inputCreator.GetType(), inputCreator);
 
     public IRuleInput CreateInput(Type type, IntermediateDataCollection dataCollection)
     {
@@ -16,7 +16,7 @@ public class RuleInputFactory
         if (type.GetInterface("IRuleInputCreator") is null || !type.IsClass)
             throw new ArgumentException($"'{nameof(type)}' must be in the inheritance hierarchy of '{typeof(IRuleInputCreator)}' and must be a class", nameof(type));
 
-        if (InputCreators.TryGetValue(type, out IRuleInputCreator creator))
+        if (_inputCreators.TryGetValue(type, out IRuleInputCreator creator))
             throw new KeyNotFoundException();
 
         return creator.Create(dataCollection);

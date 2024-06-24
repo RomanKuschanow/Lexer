@@ -14,17 +14,17 @@ using System.Data;
 namespace Lexer.Analyzer;
 public class LexemeAnalyzer
 {
-    public RuleSet RuleSet { get; set; }
-    public MiddlewareCollection Middleware { get; set; }
-    public RuleInputFactory RuleInputFactory { get; set; }
-    public RawLayerFactory RawLayerFactory { get; set; }
+    private RuleSet RuleSet { get; init; }
+    private MiddlewareCollection Middleware { get; init; }
+    private RuleInputFactory RuleInputFactory { get; init; }
+    private RawLayerFactory RawLayerFactory { get; init; }
 
-    public LexemeAnalyzer(RuleSet ruleSet = null, MiddlewareCollection middleware = null, RuleInputFactory ruleInputFactory = null!, RawLayerFactory rawLayerFactory = null!)
+    public LexemeAnalyzer(RuleSet ruleSet, MiddlewareCollection middleware, RuleInputFactory ruleInputFactory, RawLayerFactory rawLayerFactory)
     {
-        RuleSet = ruleSet ?? new();
-        Middleware = middleware ?? new();
-        RuleInputFactory = ruleInputFactory ?? new();
-        RawLayerFactory = rawLayerFactory ?? new();
+        RuleSet = ruleSet ?? throw new ArgumentNullException(nameof(ruleSet));
+        Middleware = middleware ?? throw new ArgumentNullException(nameof(middleware));
+        RuleInputFactory = ruleInputFactory ?? throw new ArgumentNullException(nameof(ruleInputFactory));
+        RawLayerFactory = rawLayerFactory ?? throw new ArgumentNullException(nameof(rawLayerFactory));
     }
 
     public async Task<AnalyzeResult> Analyze(string text, int maxDegreeOfParallelism = 10, CancellationToken ct = default)
