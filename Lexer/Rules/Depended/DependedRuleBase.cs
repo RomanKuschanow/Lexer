@@ -1,11 +1,18 @@
 ﻿#nullable disable
+using Lexer.Analyzer.Middleware;
+using Lexer.Attributes;
 using Lexer.Rules.Common;
 using Lexer.Rules.Interfaces;
+using Lexer.Rules.RawResults;
 using Lexer.Rules.RawResults.Interfaces;
+using Lexer.Rules.RuleInputs;
 using Lexer.Rules.RuleInputs.Interfaces;
 using System.Collections.Immutable;
 
 namespace Lexer.Rules.Depended;
+[UseThisRawLayerCreator(typeof(RawLayerCreator))]
+[UseThisRuleInputCreator(typeof(DependedRuleInputCreator))]
+[UseThisMiddleware(typeof(AddLayerToDataCollection), necessary: true)]
 public abstract class DependedRuleBase : RuleBase, IDependedRule
 {
     private readonly Dictionary<IRule, string[]> _dependencies = new();

@@ -5,13 +5,18 @@ using Lexer.Rules.RawResults.Interfaces;
 namespace Lexer.Rules.RawResults;
 public class RawLayerFactory
 {
-    private Dictionary<Type, IRawLayerCreator> RawLayerCreators = new();
+    private Dictionary<Type, IRawLayerCreator> RawLayerCreators = [];
 
-    public bool AddConcreteCreator<T>(IRawLayerCreator rawLayerCreator) where T : IRule => RawLayerCreators.TryAdd(typeof(T), rawLayerCreator);
+    public bool AddConcreteCreator(IRawLayerCreator rawLayerCreator) => RawLayerCreators.TryAdd(rawLayerCreator.GetType(), rawLayerCreator);
 
-    public IRawLayer CreateRawLayer(IEnumerable<IRawLexeme> rawLexemes, IRule rule)
+    public IRawLayer CreateRawLayer(Type type, IEnumerable<IRawLexeme> rawLexemes, IRule rule)
     {
-        if (RawLayerCreators.TryGetValue(rule.GetType(), out IRawLayerCreator creator))
+        ArgumentNullException.ThrowIfNull(type);
+
+        if (type.GetInterface("IRawLayerCreator") is null || !type.IsClass)
+            throw new ArgumentException($"'{nameof(type)}' must be in the inheritance hierarchy of '{typeof(IRawLayerCreator)}' and must be a class", nameof(type));
+
+        if (RawLayerCreators.TryGetValue(type, out IRawLayerCreator creator))
             throw new KeyNotFoundException();
 
         return creator.Create(rawLexemes, rule);

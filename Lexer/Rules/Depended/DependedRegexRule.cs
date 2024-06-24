@@ -118,7 +118,7 @@ public class DependedRegexRule : DependedRuleBase
                 pattern = forReplace.Replace(pattern, pointer.Current, 1);
             }
 
-            lexemes.AddRange(Regex.Matches(input.Text, pattern).Select(m => new RawLexeme(m.Index, m.Length)));
+            lexemes.AddRange(Regex.Matches(input.Text, pattern).Select(m => new RawLexeme(m.Index, m.Length, this)));
 
             var distinctListOfPointers = replacePointers.Distinct().ToList();
             int index = 0;

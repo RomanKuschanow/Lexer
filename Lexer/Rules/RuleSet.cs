@@ -3,33 +3,24 @@ using Lexer.Rules.RuleInputs.Interfaces;
 using System.Collections;
 
 namespace Lexer.Rules;
-public class RuleSet : IEnumerable<IRule>
+public class RuleSet
 {
-    private readonly List<IRule> _rules = new();
+    private readonly List<IRule> _rules = [];
 
-    public int Count => _rules.Count;
+    public IEnumerable<IRule> Rules => _rules.Where(r => r.IsEnabled).Distinct();
 
-    public IRule this[int index]
-    {
-        get => _rules[index];
-        set => _rules[index] = value;
-    }
-
-    public RuleSet()
-    {
-
-    }
+    public RuleSet() { }
 
     public RuleSet(IEnumerable<IRule> rules) => _rules = rules.ToList();
 
     public void PrepareRules()
     {
-        foreach (IDependedRule rule in this.Where(r => r is IDependedRule).Cast<IDependedRule>())
+        foreach (IDependedRule rule in Rules.Where(r => r is IDependedRule).Cast<IDependedRule>())
         {
             int ruleIndex = _rules.IndexOf(rule);
             foreach (IRule dependency in rule.Dependencies.Select(d => d.Key))
             {
-                if (!this.Contains(dependency) || _rules.IndexOf(dependency) > ruleIndex)
+                if (!Rules.Contains(dependency) || _rules.IndexOf(dependency) > ruleIndex)
                     RemoveDependency(rule, dependency);
             }
         }
@@ -40,8 +31,8 @@ public class RuleSet : IEnumerable<IRule>
         ArgumentNullException.ThrowIfNull(to);
         ArgumentNullException.ThrowIfNull(rule);
 
-        if (!this.Contains(to)) throw new ArgumentException("'to' must be in current RuleSet", nameof(to));
-        if (!this.Contains(rule)) throw new ArgumentException("'rule' must be in current RuleSet", nameof(rule));
+        if (!Rules.Contains(to)) throw new ArgumentException("'to' must be in current RuleSet", nameof(to));
+        if (!Rules.Contains(rule)) throw new ArgumentException("'rule' must be in current RuleSet", nameof(rule));
 
         to.AddDependency(rule);
     }
@@ -50,7 +41,7 @@ public class RuleSet : IEnumerable<IRule>
         ArgumentNullException.ThrowIfNull(to);
         ArgumentNullException.ThrowIfNull(rule);
 
-        if (!this.Contains(to)) throw new ArgumentException("'to' must be in current RuleSet", nameof(to));
+        if (!Rules.Contains(to)) throw new ArgumentException("'to' must be in current RuleSet", nameof(to));
 
         to.RemoveDependency(rule);
     }
@@ -58,7 +49,7 @@ public class RuleSet : IEnumerable<IRule>
     {
         ArgumentNullException.ThrowIfNull(rule);
 
-        if (!this.Contains(rule)) throw new ArgumentException("'rule' must be in current RuleSet", nameof(rule));
+        if (!Rules.Contains(rule)) throw new ArgumentException("'rule' must be in current RuleSet", nameof(rule));
 
         rule.ClearDependencies();
     }
@@ -68,7 +59,4 @@ public class RuleSet : IEnumerable<IRule>
     public void Clear() => _rules.Clear();
     public void RemoveAt(int index) => _rules.RemoveAt(index);
     public bool Remove(IRule item) => _rules.Remove(item);
-
-    public IEnumerator<IRule> GetEnumerator() => _rules.Where(r => r.IsEnabled).Distinct().GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

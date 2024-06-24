@@ -1,9 +1,14 @@
 ﻿#nullable disable
+using Lexer.Attributes;
 using Lexer.Rules.Interfaces;
+using Lexer.Rules.RawResults;
 using Lexer.Rules.RawResults.Interfaces;
+using Lexer.Rules.RuleInputs;
 using Lexer.Rules.RuleInputs.Interfaces;
 
 namespace Lexer.Rules.Common;
+[UseThisRawLayerCreator(typeof(RawLayerCreator))]
+[UseThisRuleInputCreator(typeof(CommonRuleInputCreator))]
 public abstract class RuleBase : IRule
 {
     private string _type;

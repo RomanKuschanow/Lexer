@@ -1,4 +1,5 @@
-﻿namespace Lexer.Extensions;
+﻿#nullable disable
+namespace Lexer.Extensions;
 public static class IEnumerableExtensions
 {
     public static bool ScrambledEquals<T>(this IEnumerable<T> list1, IEnumerable<T> list2)
@@ -55,5 +56,11 @@ public static class IEnumerableExtensions
             }
         }
         return cnt.Values.All(c => c == 0);
+    }
+
+    public static void ForEach<T>(this IEnumerable<T> values, Action<T> action)
+    {
+        foreach (T value in values)
+            action(value);
     }
 }

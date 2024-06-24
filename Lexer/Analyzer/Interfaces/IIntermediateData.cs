@@ -1,5 +1,5 @@
 ﻿namespace Lexer.Analyzer.Interfaces;
-public interface IIntermediateData<out T>
+public interface IIntermediateData<T>
 {
     T GetData();
 

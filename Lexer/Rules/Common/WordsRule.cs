@@ -48,6 +48,6 @@ public class WordsRule : RuleBase
     {
         var matches = Regex.Matches(input.Text, $@"\b{string.Join('|', Words)}\b");
 
-        return matches.Select(m => new RawLexeme(m.Index, m.Length));
+        return matches.Select(m => new RawLexeme(m.Index, m.Length, this));
     }
 }
