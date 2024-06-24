@@ -7,6 +7,8 @@ public class RuleInputFactory
 {
     private Dictionary<Type, IRuleInputCreator> _inputCreators = [];
 
+    public IEnumerable<IRuleInputCreator> RuleInputCreators => _inputCreators.Values;
+
     public bool AddConcreteCreator(IRuleInputCreator inputCreator) => _inputCreators.TryAdd(inputCreator.GetType(), inputCreator);
 
     public IRuleInput CreateInput(Type type, IntermediateDataCollection dataCollection)

@@ -7,6 +7,8 @@ public class RawLayerFactory
 {
     private Dictionary<Type, IRawLayerCreator> _rawLayerCreators = [];
 
+    public IEnumerable<IRawLayerCreator> RawLayerCreators => _rawLayerCreators.Values;
+
     public bool AddConcreteCreator(IRawLayerCreator rawLayerCreator) => _rawLayerCreators.TryAdd(rawLayerCreator.GetType(), rawLayerCreator);
 
     public IRawLayer CreateRawLayer(Type type, IEnumerable<IRawLexeme> rawLexemes, IRule rule)

@@ -8,32 +8,34 @@ using System.Data;
 namespace Lexer.Analyzer.Middleware;
 public class MiddlewareCollection
 {
-    private Dictionary<Type, IMiddleware> _middlewareDict = [];
+    private Dictionary<Type, IMiddleware> _middleware = [];
+
+    public IEnumerable<IMiddleware> Middleware => _middleware.Values;
 
     public void Add(IMiddleware data)
     {
         ArgumentNullException.ThrowIfNull(data);
 
-        _middlewareDict.Add(data.GetType(), data);
+        _middleware.Add(data.GetType(), data);
     }
 
     public void TryAdd(IMiddleware data)
     {
         ArgumentNullException.ThrowIfNull(data);
 
-        _middlewareDict.TryAdd(data.GetType(), data);
+        _middleware.TryAdd(data.GetType(), data);
     }
 
     public IMiddleware Get(Type type)
     {
         ArgumentNullException.ThrowIfNull(type);
 
-        _middlewareDict.TryGetValue(type, out IMiddleware middleware);
+        _middleware.TryGetValue(type, out IMiddleware middleware);
 
         return middleware;
     }
 
-    public bool Remove<T>() where T : IRule => _middlewareDict.Remove(typeof(T));
+    public bool Remove<T>() where T : IRule => _middleware.Remove(typeof(T));
 
     public IEnumerable<IMiddleware> GetMiddlewareByRule(IRule rule)
     {

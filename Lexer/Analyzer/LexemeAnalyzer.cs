@@ -1,6 +1,7 @@
 ﻿#nullable disable
 using Lexer.Analyzer.IntermediateData;
 using Lexer.Analyzer.Middleware;
+using Lexer.Analyzer.Middleware.Interface;
 using Lexer.Attributes;
 using Lexer.Exceptions;
 using Lexer.Extensions;
@@ -9,20 +10,26 @@ using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
 using Lexer.Rules.RawResults.Interfaces;
 using Lexer.Rules.RuleInputs;
+using Lexer.Rules.RuleInputs.Interfaces;
 using System.Data;
 
 namespace Lexer.Analyzer;
 public class LexemeAnalyzer
 {
     private RuleSet RuleSet { get; init; }
-    private MiddlewareCollection Middleware { get; init; }
+    private MiddlewareCollection MiddlewareCollection { get; init; }
     private RuleInputFactory RuleInputFactory { get; init; }
     private RawLayerFactory RawLayerFactory { get; init; }
+
+    public IEnumerable<IRule> Rules => RuleSet.Rules;
+    public IEnumerable<IMiddleware> Middleware => MiddlewareCollection.Middleware;
+    public IEnumerable<IRuleInputCreator> RuleInputCreators => RuleInputFactory.RuleInputCreators;
+    public IEnumerable<IRawLayerCreator> RawLayerCreators => RawLayerFactory.RawLayerCreators;
 
     public LexemeAnalyzer(RuleSet ruleSet, MiddlewareCollection middleware, RuleInputFactory ruleInputFactory, RawLayerFactory rawLayerFactory)
     {
         RuleSet = ruleSet ?? throw new ArgumentNullException(nameof(ruleSet));
-        Middleware = middleware ?? throw new ArgumentNullException(nameof(middleware));
+        MiddlewareCollection = middleware ?? throw new ArgumentNullException(nameof(middleware));
         RuleInputFactory = ruleInputFactory ?? throw new ArgumentNullException(nameof(ruleInputFactory));
         RawLayerFactory = rawLayerFactory ?? throw new ArgumentNullException(nameof(rawLayerFactory));
     }
@@ -48,7 +55,7 @@ public class LexemeAnalyzer
 
             var layer = RawLayerFactory.CreateRawLayer(GetAttributeValue<UseThisRawLayerCreatorAttribute>(rule).Type, rawLexemes, rule);
 
-            Middleware.GetMiddlewareByRule(rule).ForEach(middleware => middleware.Execute(rule, input, layer, intermediateDataCollection));
+            MiddlewareCollection.GetMiddlewareByRule(rule).ForEach(middleware => middleware.Execute(rule, input, layer, intermediateDataCollection));
 
             return layer;
         })
