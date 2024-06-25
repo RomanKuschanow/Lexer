@@ -14,7 +14,7 @@ using Lexer.Rules.RuleInputs.Interfaces;
 using System.Data;
 
 namespace Lexer.Analyzer;
-public class LexemeAnalyzer
+public class LexemeAnalyzer : IDisposable
 {
     private RuleSet RuleSet { get; init; }
     private MiddlewareCollection MiddlewareCollection { get; init; }
@@ -34,7 +34,7 @@ public class LexemeAnalyzer
         RawLayerFactory = rawLayerFactory ?? throw new ArgumentNullException(nameof(rawLayerFactory));
     }
 
-    public async Task<AnalyzeResult> Analyze(string text, int maxDegreeOfParallelism = 10, CancellationToken ct = default)
+    public AnalyzeResult Analyze(string text, int maxDegreeOfParallelism = 10, CancellationToken ct = default)
     {
         RuleSet.PrepareRules();
 
@@ -49,11 +49,11 @@ public class LexemeAnalyzer
         .AsOrdered()
         .Select(rule =>
         {
-            var input = RuleInputFactory.CreateInput(GetAttributeValue<UseThisRuleInputCreatorAttribute>(rule).Type, intermediateDataCollection);
+            var input = RuleInputFactory.CreateInput(GetAttributeValue<UseThisRuleInputCreatorAttribute>(rule).RuleInputCreatorType, intermediateDataCollection);
 
             var rawLexemes = rule.FindLexemes(input);
 
-            var layer = RawLayerFactory.CreateRawLayer(GetAttributeValue<UseThisRawLayerCreatorAttribute>(rule).Type, rawLexemes, rule);
+            var layer = RawLayerFactory.CreateRawLayer(GetAttributeValue<UseThisRawLayerCreatorAttribute>(rule).RawLayerCreatorType, rawLexemes, rule);
 
             MiddlewareCollection.GetMiddlewareByRule(rule).ForEach(middleware => middleware.Execute(rule, input, layer, intermediateDataCollection));
 
@@ -64,36 +64,33 @@ public class LexemeAnalyzer
         List<Lexeme> lexemes = [];
         List<UnrecognizedPart> errors = [];
 
-        await Task.Run(() =>
+        int startIndex = 0;
+        IEnumerable<IRawLexeme> candidates;
+        while ((candidates = layers.Select(layer => layer.RawLexemes.FirstOrDefault(lexeme => lexeme.Start >= startIndex))
+                                   .Where(l => l is not null).Cast<RawLexeme>()).Any())
         {
-            int startIndex = 0;
-            IEnumerable<IRawLexeme> candidates;
-            while ((candidates = layers.Select(layer => layer.RawLexemes.FirstOrDefault(lexeme => lexeme.Start >= startIndex))
-                                       .Where(l => l is not null).Cast<RawLexeme>()).Any())
-            {
-                var selectedLexeme = candidates.First();
-                foreach (var lexeme in candidates.Skip(1))
-                    if (lexeme.Start < selectedLexeme.Start)
-                        selectedLexeme = lexeme;
+            var selectedLexeme = candidates.First();
+            foreach (var lexeme in candidates.Skip(1))
+                if (lexeme.Start < selectedLexeme.Start)
+                    selectedLexeme = lexeme;
 
-                if (!selectedLexeme.Rule.IsIgnored)
-                    lexemes.Add(new(selectedLexeme.Rule.Type, text.Substring(selectedLexeme.Start, selectedLexeme.Length)));
+            if (!selectedLexeme.Rule.IsIgnored)
+                lexemes.Add(new(selectedLexeme.Rule.Type, text.Substring(selectedLexeme.Start, selectedLexeme.Length)));
 
-                if (selectedLexeme.Start > startIndex)
-                {
-                    var (ln, ch) = GetLineAndCharacter(startIndex);
-                    errors.Add(new(ln, ch, selectedLexeme.Start - startIndex));
-                }
-
-                startIndex = selectedLexeme.Start + selectedLexeme.Length;
-            }
-
-            if (startIndex < text.Length)
+            if (selectedLexeme.Start > startIndex)
             {
                 var (ln, ch) = GetLineAndCharacter(startIndex);
-                errors.Add(new(ln, ch, text.Length - startIndex));
+                errors.Add(new(ln, ch, selectedLexeme.Start - startIndex));
             }
-        }, ct);
+
+            startIndex = selectedLexeme.Start + selectedLexeme.Length;
+        }
+
+        if (startIndex < text.Length)
+        {
+            var (ln, ch) = GetLineAndCharacter(startIndex);
+            errors.Add(new(ln, ch, text.Length - startIndex));
+        }
 
         return new(lexemes, errors);
 
@@ -114,5 +111,11 @@ public class LexemeAnalyzer
             return attribute;
 
         throw new NecessaryAttributeNotFoundException(rule, typeof(T));
+    }
+
+    public void Dispose()
+    {
+        RuleSet.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

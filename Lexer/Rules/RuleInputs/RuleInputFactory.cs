@@ -9,7 +9,12 @@ public class RuleInputFactory
 
     public IEnumerable<IRuleInputCreator> RuleInputCreators => _inputCreators.Values;
 
-    public bool AddConcreteCreator(IRuleInputCreator inputCreator) => _inputCreators.TryAdd(inputCreator.GetType(), inputCreator);
+    public bool AddConcreteCreator(IRuleInputCreator inputCreator)
+    {
+        ArgumentNullException.ThrowIfNull(inputCreator);
+
+        return _inputCreators.TryAdd(inputCreator.GetType(), inputCreator);
+    }
 
     public IRuleInput CreateInput(Type type, IntermediateDataCollection dataCollection)
     {

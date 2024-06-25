@@ -5,7 +5,7 @@ namespace Lexer.Attributes;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
 public class UseThisRuleInputCreatorAttribute : Attribute
 {
-    public Type Type { get; }
+    public Type RuleInputCreatorType { get; }
 
     public UseThisRuleInputCreatorAttribute(Type type)
     {
@@ -14,6 +14,6 @@ public class UseThisRuleInputCreatorAttribute : Attribute
         if (type != typeof(IRuleInputCreator) && type.GetInterface("IRuleInputCreator") is null)
             throw new ArgumentException($"'{nameof(type)}' must be in the inheritance hierarchy of '{typeof(IRuleInputCreator)}'", nameof(type));
 
-        Type = type;
+        RuleInputCreatorType = type;
     }
 }
