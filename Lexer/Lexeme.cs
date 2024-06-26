@@ -1,7 +1,4 @@
 ﻿namespace Lexer;
-/// <summary>
-/// Represents a lexeme, an identified segment of text according to a rule.
-/// </summary>
 public record Lexeme
 {
     /// <summary>

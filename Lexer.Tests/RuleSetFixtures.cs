@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using Lexer.Rules;
 using Lexer.Rules.Interfaces;
-using Lexer.Rules.RuleInputs.Interfaces;
 using Moq;
 using System.Collections.Immutable;
 
