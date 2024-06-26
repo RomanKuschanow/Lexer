@@ -3,7 +3,7 @@ using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults.Interfaces;
 
 namespace Lexer.Rules.RawResults;
-public class RawLayerFactory
+public class RawLayerFactory : IRawLayerFactory
 {
     private Dictionary<Type, IRawLayerCreator> _rawLayerCreators = [];
 
@@ -11,16 +11,18 @@ public class RawLayerFactory
 
     public bool AddConcreteCreator(IRawLayerCreator rawLayerCreator) => _rawLayerCreators.TryAdd(rawLayerCreator.GetType(), rawLayerCreator);
 
-    public IRawLayer CreateRawLayer(Type type, IEnumerable<IRawLexeme> rawLexemes, IRule rule)
+    public IRawLayer CreateRawLayer(Type creatorType, IEnumerable<IRawLexeme> rawLexemes, IRule rule)
     {
-        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(creatorType);
 
-        if (type.GetInterface("IRawLayerCreator") is null || !type.IsClass)
-            throw new ArgumentException($"'{nameof(type)}' must be in the inheritance hierarchy of '{typeof(IRawLayerCreator)}' and must be a class", nameof(type));
+        if (creatorType.GetInterface("IRawLayerCreator") is null || !creatorType.IsClass)
+            throw new ArgumentException($"'{nameof(creatorType)}' must be in the inheritance hierarchy of '{typeof(IRawLayerCreator)}' and must be a class", nameof(creatorType));
 
-        if (_rawLayerCreators.TryGetValue(type, out IRawLayerCreator creator))
+        if (_rawLayerCreators.TryGetValue(creatorType, out IRawLayerCreator creator))
             throw new KeyNotFoundException();
 
         return creator.Create(rawLexemes, rule);
     }
+
+    public void Dispose() => GC.SuppressFinalize(this);
 }

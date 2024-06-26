@@ -3,7 +3,7 @@ using Lexer.Analyzer.IntermediateData;
 using Lexer.Rules.RuleInputs.Interfaces;
 
 namespace Lexer.Rules.RuleInputs;
-public class RuleInputFactory
+public class RuleInputFactory : IRuleInputFactory
 {
     private Dictionary<Type, IRuleInputCreator> _inputCreators = [];
 
@@ -16,16 +16,18 @@ public class RuleInputFactory
         return _inputCreators.TryAdd(inputCreator.GetType(), inputCreator);
     }
 
-    public IRuleInput CreateInput(Type type, IntermediateDataCollection dataCollection)
+    public IRuleInput CreateInput(Type creatorType, IntermediateDataCollection dataCollection)
     {
-        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(creatorType);
 
-        if (type.GetInterface("IRuleInputCreator") is null || !type.IsClass)
-            throw new ArgumentException($"'{nameof(type)}' must be in the inheritance hierarchy of '{typeof(IRuleInputCreator)}' and must be a class", nameof(type));
+        if (creatorType.GetInterface("IRuleInputCreator") is null || !creatorType.IsClass)
+            throw new ArgumentException($"'{nameof(creatorType)}' must be in the inheritance hierarchy of '{typeof(IRuleInputCreator)}' and must be a class", nameof(creatorType));
 
-        if (_inputCreators.TryGetValue(type, out IRuleInputCreator creator))
+        if (_inputCreators.TryGetValue(creatorType, out IRuleInputCreator creator))
             throw new KeyNotFoundException();
 
         return creator.Create(dataCollection);
     }
+
+    public void Dispose() => GC.SuppressFinalize(this);
 }

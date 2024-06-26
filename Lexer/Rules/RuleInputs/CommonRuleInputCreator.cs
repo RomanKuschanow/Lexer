@@ -5,7 +5,6 @@ using Lexer.Rules.RuleInputs.Interfaces;
 
 namespace Lexer.Rules.RuleInputs;
 
-[NeedThisRawResultCreator<RuleBase>]
 public class CommonRuleInputCreator : IRuleInputCreator
 {
     public IRuleInput Create(IntermediateDataCollection dataCollection)

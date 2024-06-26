@@ -6,7 +6,7 @@ using Lexer.Rules.Interfaces;
 using System.Data;
 
 namespace Lexer.Analyzer.Middleware;
-public class MiddlewareCollection
+public class MiddlewareCollection : IMiddlewareCollection
 {
     private Dictionary<Type, IMiddleware> _middleware = [];
 
@@ -26,11 +26,11 @@ public class MiddlewareCollection
         _middleware.TryAdd(data.GetType(), data);
     }
 
-    public IMiddleware Get(Type type)
+    public IMiddleware Get(Type middlewareType)
     {
-        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(middlewareType);
 
-        _middleware.TryGetValue(type, out IMiddleware middleware);
+        _middleware.TryGetValue(middlewareType, out IMiddleware middleware);
 
         return middleware;
     }
@@ -53,4 +53,6 @@ public class MiddlewareCollection
             yield return middleware;
         }
     }
+
+    public void Dispose() => GC.SuppressFinalize(this);
 }

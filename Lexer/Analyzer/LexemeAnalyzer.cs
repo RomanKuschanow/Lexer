@@ -16,17 +16,17 @@ using System.Data;
 namespace Lexer.Analyzer;
 public class LexemeAnalyzer : IDisposable
 {
-    private RuleSet RuleSet { get; init; }
-    private MiddlewareCollection MiddlewareCollection { get; init; }
-    private RuleInputFactory RuleInputFactory { get; init; }
-    private RawLayerFactory RawLayerFactory { get; init; }
+    private IRuleSet RuleSet { get; init; }
+    private IMiddlewareCollection MiddlewareCollection { get; init; }
+    private IRuleInputFactory RuleInputFactory { get; init; }
+    private IRawLayerFactory RawLayerFactory { get; init; }
 
     public IEnumerable<IRule> Rules => RuleSet.Rules;
     public IEnumerable<IMiddleware> Middleware => MiddlewareCollection.Middleware;
     public IEnumerable<IRuleInputCreator> RuleInputCreators => RuleInputFactory.RuleInputCreators;
     public IEnumerable<IRawLayerCreator> RawLayerCreators => RawLayerFactory.RawLayerCreators;
 
-    public LexemeAnalyzer(RuleSet ruleSet, MiddlewareCollection middleware, RuleInputFactory ruleInputFactory, RawLayerFactory rawLayerFactory)
+    public LexemeAnalyzer(IRuleSet ruleSet, IMiddlewareCollection middleware, IRuleInputFactory ruleInputFactory, IRawLayerFactory rawLayerFactory)
     {
         RuleSet = ruleSet ?? throw new ArgumentNullException(nameof(ruleSet));
         MiddlewareCollection = middleware ?? throw new ArgumentNullException(nameof(middleware));
@@ -36,8 +36,6 @@ public class LexemeAnalyzer : IDisposable
 
     public AnalyzeResult Analyze(string text, int maxDegreeOfParallelism = 10, CancellationToken ct = default)
     {
-        RuleSet.PrepareRules();
-
         Dictionary<IRule, RawLayer> layersDict = [];
         IntermediateDataCollection intermediateDataCollection = new();
         intermediateDataCollection.Add(new InputTextIntermediateData(text));
@@ -116,6 +114,9 @@ public class LexemeAnalyzer : IDisposable
     public void Dispose()
     {
         RuleSet.Dispose();
+        MiddlewareCollection.Dispose();
+        RuleInputFactory.Dispose();
+        RawLayerFactory.Dispose();
         GC.SuppressFinalize(this);
     }
 }
