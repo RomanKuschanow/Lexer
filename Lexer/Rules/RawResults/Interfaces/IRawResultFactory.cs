@@ -11,9 +11,8 @@ public interface IRawLayerFactory : IDisposable
     /// <summary>
     /// Creates a raw layer using the specified creator type, raw lexemes, and rule.
     /// </summary>
-    /// <param name="creatorType">The type of the raw layer creator.</param>
+    /// <param name="rule">The target rule.</param>
     /// <param name="rawLexemes">The collection of raw lexemes.</param>
-    /// <param name="rule">The rule associated with the <paramref name="creatorType"/>.</param>
     /// <returns>The created raw layer.</returns>
-    public IRawLayer CreateRawLayer(Type creatorType, IEnumerable<IRawLexeme> rawLexemes, IRule rule);
+    public IRawLayer CreateRawLayer(IRule rule, IEnumerable<IRawLexeme> rawLexemes);
 }

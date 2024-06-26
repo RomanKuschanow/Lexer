@@ -1,4 +1,5 @@
 ﻿using Lexer.Analyzer.IntermediateData;
+using Lexer.Rules.Interfaces;
 
 namespace Lexer.Rules.RuleInputs.Interfaces;
 public interface IRuleInputFactory : IDisposable
@@ -11,8 +12,8 @@ public interface IRuleInputFactory : IDisposable
     /// <summary>
     /// Creates a rule input using the specified creator type and intermediate data collection.
     /// </summary>
-    /// <param name="creatorType">The type of the rule input creator.</param>
+    /// <param name="rule">The target rule.</param>
     /// <param name="dataCollection">The collection of intermediate data.</param>
     /// <returns>The created rule input.</returns>
-    IRuleInput CreateInput(Type creatorType, IntermediateDataCollection dataCollection);
+    IRuleInput CreateInput(IRule rule, IntermediateDataCollection dataCollection);
 }

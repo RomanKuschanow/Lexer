@@ -1,4 +1,6 @@
 ﻿#nullable disable
+using Lexer.Attributes;
+using Lexer.Exceptions;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults.Interfaces;
 
@@ -25,19 +27,25 @@ public class RawLayerFactory : IRawLayerFactory
     /// <summary>
     /// Creates a raw layer using the specified creator type, raw lexemes, and rule.
     /// </summary>
-    /// <param name="creatorType">The type of the raw layer creator.</param>
+    /// <param name="rule">The target rule.</param>
     /// <param name="rawLexemes">The collection of raw lexemes.</param>
-    /// <param name="rule">The rule associated with the raw layer.</param>
     /// <returns>The created raw layer.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="creatorType"/> is null.</exception>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="creatorType"/> is not a class or does not implement <see cref="IRawLayerCreator"/>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="rule"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when creatorType is not a class or does not implement <see cref="IRawLayerCreator"/>.</exception>
     /// <exception cref="KeyNotFoundException">Thrown when a creator of the specified type is not found.</exception>
-    public IRawLayer CreateRawLayer(Type creatorType, IEnumerable<IRawLexeme> rawLexemes, IRule rule)
+    public IRawLayer CreateRawLayer(IRule rule, IEnumerable<IRawLexeme> rawLexemes)
     {
-        ArgumentNullException.ThrowIfNull(creatorType);
+        ArgumentNullException.ThrowIfNull(rule);
+
+        var type = rule.GetType();
+
+        if (type.GetCustomAttributes(typeof(UseThisRawLayerCreatorAttribute), true).FirstOrDefault() is not UseThisRawLayerCreatorAttribute attribute)
+            throw new NecessaryAttributeNotFoundException(rule, typeof(UseThisRawLayerCreatorAttribute));
+
+        var creatorType = attribute.RawLayerCreatorType;
 
         if (creatorType.GetInterface(nameof(IRawLayerCreator)) is null || !creatorType.IsClass)
-            throw new ArgumentException($"'{nameof(creatorType)}' must be in the inheritance hierarchy of '{typeof(IRawLayerCreator)}' and must be a class", nameof(creatorType));
+            throw new ArgumentException($"'{nameof(attribute.RawLayerCreatorType)}' must be in the inheritance hierarchy of '{typeof(IRawLayerCreator)}' and must be a class");
 
         if (!_rawLayerCreators.TryGetValue(creatorType, out IRawLayerCreator creator))
             throw new KeyNotFoundException();

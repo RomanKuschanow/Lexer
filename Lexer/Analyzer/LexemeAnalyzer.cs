@@ -76,7 +76,7 @@ public class LexemeAnalyzer : IDisposable
     /// <exception cref="NecessaryAttributeNotFoundException">Thrown when a necessary attribute is not found.</exception>
     public AnalyzeResult Analyze(string text, int maxDegreeOfParallelism = 10, CancellationToken ct = default)
     {
-        Dictionary<IRule, RawLayer> layersDict = new();
+        Dictionary<IRule, RawLayer> layersDict = [];
         IntermediateDataCollection intermediateDataCollection = new();
         intermediateDataCollection.Add(new InputTextIntermediateData(text));
 
@@ -89,13 +89,13 @@ public class LexemeAnalyzer : IDisposable
         .Select(rule =>
         {
             // Create input using the rule input factory
-            var input = RuleInputFactory.CreateInput(GetAttributeValue<UseThisRuleInputCreatorAttribute>(rule).RuleInputCreatorType, intermediateDataCollection);
+            var input = RuleInputFactory.CreateInput(rule, intermediateDataCollection);
 
             // Find lexemes using the rule
             var rawLexemes = rule.FindLexemes(input);
 
             // Create raw layer using the raw layer factory
-            var layer = RawLayerFactory.CreateRawLayer(GetAttributeValue<UseThisRawLayerCreatorAttribute>(rule).RawLayerCreatorType, rawLexemes, rule);
+            var layer = RawLayerFactory.CreateRawLayer(rule, rawLexemes);
 
             // Execute middleware for the rule
             MiddlewareCollection.GetMiddlewareByRule(rule).ForEach(middleware => middleware.Execute(rule, input, layer, intermediateDataCollection));
@@ -104,8 +104,8 @@ public class LexemeAnalyzer : IDisposable
         })
         .Where(layer => !layer.Rule.IsOnlyForDependentRules);
 
-        List<Lexeme> lexemes = new();
-        List<UnrecognizedPart> errors = new();
+        List<Lexeme> lexemes = [];
+        List<UnrecognizedPart> errors = [];
 
         int startIndex = 0;
         IEnumerable<IRawLexeme> candidates;
@@ -162,23 +162,6 @@ public class LexemeAnalyzer : IDisposable
             int ch = index - (lastIndexOfNewLine > -1 ? lastIndexOfNewLine : 0) + 1;
             return (ln, ch);
         }
-    }
-
-    /// <summary>
-    /// Retrieves a specific attribute value from the rule.
-    /// </summary>
-    /// <typeparam name="T">The type of the attribute.</typeparam>
-    /// <param name="rule">The rule to get the attribute from.</param>
-    /// <returns>The attribute value.</returns>
-    /// <exception cref="NecessaryAttributeNotFoundException">Thrown when the attribute is not found.</exception>
-    private static T GetAttributeValue<T>(IRule rule) where T : Attribute
-    {
-        var type = rule.GetType();
-
-        if (type.GetCustomAttributes(typeof(T), true).FirstOrDefault() is T attribute)
-            return attribute;
-
-        throw new NecessaryAttributeNotFoundException(rule, typeof(T));
     }
 
     /// <summary>

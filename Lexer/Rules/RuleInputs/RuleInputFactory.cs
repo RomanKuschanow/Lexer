@@ -1,5 +1,8 @@
 ﻿#nullable disable
 using Lexer.Analyzer.IntermediateData;
+using Lexer.Attributes;
+using Lexer.Exceptions;
+using Lexer.Rules.Interfaces;
 using Lexer.Rules.RuleInputs.Interfaces;
 
 namespace Lexer.Rules.RuleInputs;
@@ -31,18 +34,25 @@ public class RuleInputFactory : IRuleInputFactory
     /// <summary>
     /// Creates a rule input using the specified creator type and intermediate data collection.
     /// </summary>
-    /// <param name="creatorType">The type of the rule input creator.</param>
+    /// <param name="rule">The target rule.</param>
     /// <param name="dataCollection">The collection of intermediate data.</param>
     /// <returns>The created rule input.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="creatorType"/> is null.</exception>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="creatorType"/> is not a class or does not implement <see cref="IRuleInputCreator"/>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="rule"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when creatorType is not a class or does not implement <see cref="IRuleInputCreator"/>.</exception>
     /// <exception cref="KeyNotFoundException">Thrown when a creator of the specified type is not found.</exception>
-    public IRuleInput CreateInput(Type creatorType, IntermediateDataCollection dataCollection)
+    public IRuleInput CreateInput(IRule rule, IntermediateDataCollection dataCollection)
     {
-        ArgumentNullException.ThrowIfNull(creatorType);
+        ArgumentNullException.ThrowIfNull(rule);
+
+        var type = rule.GetType();
+
+        if (type.GetCustomAttributes(typeof(UseThisRuleInputCreatorAttribute), true).FirstOrDefault() is not UseThisRuleInputCreatorAttribute attribute)
+            throw new NecessaryAttributeNotFoundException(rule, typeof(UseThisRuleInputCreatorAttribute));
+
+        var creatorType = attribute.RuleInputCreatorType;
 
         if (creatorType.GetInterface(nameof(IRuleInputCreator)) is null || !creatorType.IsClass)
-            throw new ArgumentException($"'{nameof(creatorType)}' must be in the inheritance hierarchy of '{typeof(IRuleInputCreator)}' and must be a class", nameof(creatorType));
+            throw new ArgumentException($"'{nameof(attribute.RuleInputCreatorType)}' must be in the inheritance hierarchy of '{typeof(IRuleInputCreator)}' and must be a class");
 
         if (!_inputCreators.TryGetValue(creatorType, out IRuleInputCreator creator))
             throw new KeyNotFoundException();
