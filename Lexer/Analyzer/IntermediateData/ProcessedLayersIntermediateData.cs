@@ -13,6 +13,13 @@ public class ProcessedLayersIntermediateData : IDictionaryIntermediateData<IRule
     /// </summary>
     private Dictionary<IRule, IRawLayer> ProcessedLayers { get; set; }
 
+    public ProcessedLayersIntermediateData() { }
+
+    public ProcessedLayersIntermediateData(IDictionary<IRule, IRawLayer> processedLayers)
+    {
+        ProcessedLayers = (processedLayers ?? throw new ArgumentNullException(nameof(processedLayers))).ToDictionary();
+    }
+
     /// <summary>
     /// Retrieves the raw layer associated with the specified rule.
     /// </summary>
