@@ -21,4 +21,7 @@ public class InputTextIntermediateData : IIntermediateData<string>
     public string GetData() => Text;
 
     public void SetData(string data) => Text = data;
+
+    object IIntermediateData.GetData() => Text;
+    void IIntermediateData.SetData(object data) => Text = (string)data;
 }

@@ -3,6 +3,7 @@ using Lexer.Analyzer.Interfaces;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
 using Lexer.Rules.RawResults.Interfaces;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Lexer.Analyzer.IntermediateData;
 public class ProcessedLayersIntermediateData : IDictionaryIntermediateData<IRule, IRawLayer>
@@ -52,4 +53,6 @@ public class ProcessedLayersIntermediateData : IDictionaryIntermediateData<IRule
     /// </summary>
     /// <param name="data">The dictionary of processed layers to set.</param>
     public void SetData(IDictionary<IRule, IRawLayer> data) => ProcessedLayers = data.ToDictionary();
+    object IIntermediateData.GetData() => ProcessedLayers;
+    void IIntermediateData.SetData(object data) => ProcessedLayers = (Dictionary<IRule, IRawLayer>)data;
 }
