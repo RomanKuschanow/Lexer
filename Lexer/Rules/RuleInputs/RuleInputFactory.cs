@@ -1,4 +1,5 @@
 ﻿#nullable disable
+using Lexer.Analyzer.Interfaces;
 using Lexer.Analyzer.IntermediateData;
 using Lexer.Attributes;
 using Lexer.Exceptions;
@@ -40,7 +41,7 @@ public class RuleInputFactory : IRuleInputFactory
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="rule"/> is null.</exception>
     /// <exception cref="ArgumentException">Thrown when creatorType is not a class or does not implement <see cref="IRuleInputCreator"/>.</exception>
     /// <exception cref="KeyNotFoundException">Thrown when a creator of the specified type is not found.</exception>
-    public IRuleInput CreateInput(IRule rule, IntermediateDataCollection dataCollection)
+    public IRuleInput CreateInput(IRule rule, IIntermediateDataCollection dataCollection)
     {
         ArgumentNullException.ThrowIfNull(rule);
 

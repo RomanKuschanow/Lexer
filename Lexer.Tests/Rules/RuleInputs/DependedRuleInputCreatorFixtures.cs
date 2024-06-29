@@ -1,5 +1,6 @@
 ﻿#nullable disable
 using FluentAssertions;
+using Lexer.Analyzer.Interfaces;
 using Lexer.Analyzer.IntermediateData;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults.Interfaces;
@@ -19,14 +20,14 @@ public class DependedRuleInputCreatorFixtures
         var RawLayerMock = new Mock<IRawLayer>();
         Dictionary<IRule, IRawLayer> layer = new() { { RuleMock.Object, RawLayerMock.Object } };
 
-        IntermediateDataCollection intermediateDataCollection = new();
-        intermediateDataCollection.Add(new InputTextIntermediateData(str));
-        intermediateDataCollection.Add(new ProcessedLayersIntermediateData(layer));
+        var dataCollectionMock = new Mock<IIntermediateDataCollection>();
+        dataCollectionMock.Setup(x => x.Get<InputTextIntermediateData>()).Returns(new InputTextIntermediateData(str));
+        dataCollectionMock.Setup(x => x.Get<ProcessedLayersIntermediateData>()).Returns(new ProcessedLayersIntermediateData(layer));
 
         DependedRuleInputCreator sut = new();
 
         // Act
-        var ruleInput = sut.Create(intermediateDataCollection) as IDependedRuleInput;
+        var ruleInput = sut.Create(dataCollectionMock.Object) as IDependedRuleInput;
 
         // Assert
         ruleInput.Should().NotBeNull();

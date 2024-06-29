@@ -1,4 +1,5 @@
-﻿using Lexer.Analyzer.IntermediateData;
+﻿using Lexer.Analyzer.Interfaces;
+using Lexer.Analyzer.IntermediateData;
 using Lexer.Rules.RuleInputs.Interfaces;
 
 namespace Lexer.Rules.RuleInputs;
@@ -10,7 +11,7 @@ public class DependedRuleInputCreator : IRuleInputCreator
     /// <param name="dataCollection">The collection of intermediate data.</param>
     /// <returns>The created rule input.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="dataCollection"/> is null.</exception>
-    public IRuleInput Create(IntermediateDataCollection dataCollection)
+    public IRuleInput Create(IIntermediateDataCollection dataCollection)
     {
         ArgumentNullException.ThrowIfNull(dataCollection);
 

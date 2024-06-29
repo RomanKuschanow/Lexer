@@ -1,9 +1,8 @@
 ﻿#nullable disable
 using Lexer.Analyzer.Interfaces;
-using System.Reflection;
 
 namespace Lexer.Analyzer.IntermediateData;
-public class IntermediateDataCollection
+public class IntermediateDataCollection : IIntermediateDataCollection
 {
     /// <summary>
     /// Dictionary to store intermediate data by their type.

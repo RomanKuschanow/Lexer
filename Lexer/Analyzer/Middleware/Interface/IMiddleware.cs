@@ -1,4 +1,4 @@
-﻿using Lexer.Analyzer.IntermediateData;
+﻿using Lexer.Analyzer.Interfaces;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults.Interfaces;
 using Lexer.Rules.RuleInputs.Interfaces;
@@ -13,5 +13,5 @@ public interface IMiddleware
     /// <param name="ruleInput">The input for the rule.</param>
     /// <param name="rawLayer">The raw layer from <paramref name="rule"/>.</param>
     /// <param name="dataCollection">The collection of intermediate data.</param>
-    void Execute(IRule rule, IRuleInput ruleInput, IRawLayer rawLayer, IntermediateDataCollection dataCollection);
+    void Execute(IRule rule, IRuleInput ruleInput, IRawLayer rawLayer, IIntermediateDataCollection dataCollection);
 }

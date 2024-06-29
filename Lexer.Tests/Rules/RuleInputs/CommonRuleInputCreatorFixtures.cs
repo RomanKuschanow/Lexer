@@ -2,7 +2,6 @@
 using Lexer.Analyzer.Interfaces;
 using Lexer.Analyzer.IntermediateData;
 using Lexer.Rules.RuleInputs;
-using Lexer.Rules.RuleInputs.Interfaces;
 using Moq;
 
 namespace Lexer.Tests.Rules.RuleInputs;
@@ -14,13 +13,13 @@ public class CommonRuleInputCreatorFixtures
         // Arrange
         string str = "some text";
 
-        IntermediateDataCollection intermediateDataCollection = new();
-        intermediateDataCollection.Add(new InputTextIntermediateData(str));
+        var dataCollectionMock = new Mock<IIntermediateDataCollection>();
+        dataCollectionMock.Setup(x => x.Get<InputTextIntermediateData>()).Returns(new InputTextIntermediateData(str));
 
         CommonRuleInputCreator sut = new();
 
         // Act
-        var ruleInput = sut.Create(intermediateDataCollection);
+        var ruleInput = sut.Create(dataCollectionMock.Object);
 
         // Assert
         ruleInput.Should().NotBeNull();
