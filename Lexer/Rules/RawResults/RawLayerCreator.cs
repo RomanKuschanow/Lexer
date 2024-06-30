@@ -4,13 +4,22 @@ using Lexer.Rules.RawResults.Interfaces;
 namespace Lexer.Rules.RawResults;
 public class RawLayerCreator : IRawLayerCreator
 {
+    public bool SelectShorter { get; set; } = true;
+
+    public RawLayerCreator() { }
+
+    public RawLayerCreator(bool selectShorter)
+    {
+        SelectShorter = selectShorter;
+    }
+
     public IRawLayer Create(IEnumerable<IRawLexeme> rawLexemes, IRule rule)
     {
         // Initialize a list to store the resulting lexemes
-        List<RawLexeme> resultLexemes = new();
+        List<IRawLexeme> resultLexemes = [];
 
         // Iterate over the sorted raw lexemes by their start position
-        foreach (RawLexeme lexeme in rawLexemes.OrderBy(l => l.Start))
+        foreach (IRawLexeme lexeme in rawLexemes.OrderBy(l => l.Start))
         {
             // Skip the lexeme if it overlaps with any already added lexeme
             if (resultLexemes.Any(l => l.Start <= lexeme.Start && l.Start + l.Length > lexeme.Start))
@@ -20,7 +29,7 @@ public class RawLayerCreator : IRawLayerCreator
             var lexemesAtOnePoint = rawLexemes.Where(l => l.Start == lexeme.Start);
 
             // Skip the lexeme if there are other shorter lexemes starting at the same position
-            if (lexemesAtOnePoint.Count() > 1 && lexemesAtOnePoint.Where(l => l.Length < lexeme.Length).Any())
+            if (lexemesAtOnePoint.Count() > 1 && lexemesAtOnePoint.Where(l => SelectShorter ? l.Length < lexeme.Length : l.Length > lexeme.Length).Any())
                 continue;
 
             // Add the lexeme to the result list

@@ -30,7 +30,6 @@
   <ItemGroup>
     <Folder Include="Analyzer\Middleware\" />
     <Folder Include="Analyzer\IntermediateData\" />
-    <Folder Include="Rules\RawResults\" />
   </ItemGroup>
 
 </Project>
