@@ -52,12 +52,17 @@ public class RuleSet : IRuleSet
     /// <param name="index">The index at which to insert the rule.</param>
     /// <param name="rule">The rule to insert.</param>
     /// <exception cref="ArgumentException">Thrown when the rule set already contains the specified rule.</exception>
-    public void Insert(int index, IRule rule)
+    public void InsertBefore(IRule pointer, IRule rule)
     {
+        ArgumentNullException.ThrowIfNull(pointer);
+        ArgumentNullException.ThrowIfNull(rule);
+
+        if (!_rules.Contains(pointer))
+            throw new ArgumentException($"Current RuleSet must contains '{nameof(pointer)}'", nameof(pointer));
         if (_rules.Contains(rule))
             throw new ArgumentException($"Current RuleSet already contains '{nameof(rule)}'", nameof(rule));
 
-        _rules.Insert(index, rule);
+        _rules.Insert(_rules.IndexOf(pointer), rule);
     }
 
     /// <summary>

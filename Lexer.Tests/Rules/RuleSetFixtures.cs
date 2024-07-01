@@ -2,159 +2,118 @@
 using Lexer.Rules;
 using Lexer.Rules.Interfaces;
 using Moq;
-using System.Collections.Immutable;
 
 namespace Lexer.Tests.Rules;
-//public class RuleSetFixtures
-//{
-//    [Fact]
-//    public void GivenEmptyConstructor_WhenInstantiated_ThenCountIsZero()
-//    {
-//        // Arrange
-//        var ruleSet = new RuleSet();
+public class RuleSetFixtures
+{
+    [Fact]
+    public void GivenRule_WhenAdd_ThenRuleSetContainSpecifiedRule()
+    {
+        // Arrange
+        var ruleMock = new Mock<IRule>();
+        ruleMock.SetupGet(x => x.IsEnabled).Returns(true);
 
-//        // Act
-//        var count = ruleSet.Count;
+        RuleSet sut = new();
 
-//        // Assert
-//        count.Should().Be(0);
-//    }
+        // Act
+        sut.Add(ruleMock.Object);
 
-//    [Fact]
-//    public void GivenRules_WhenInstantiated_ThenCountMatches()
-//    {
-//        // Arrange
-//        var mockRule1 = new Mock<IRule>();
-//        var mockRule2 = new Mock<IRule>();
-//        var rules = new List<IRule> { mockRule1.Object, mockRule2.Object };
-//        var ruleSet = new RuleSet(rules);
+        // Assert
+        sut.Rules.Should().Contain(ruleMock.Object);
+    }
 
-//        // Act
-//        var count = ruleSet.Count;
+    [Fact]
+    public void GivenRules_WhenAddRange_ThenRuleSetContainSpecifiedRules()
+    {
+        // Arrange
+        var ruleMock1 = new Mock<IRule>();
+        var ruleMock2 = new Mock<IRule>();
+        ruleMock1.SetupGet(x => x.IsEnabled).Returns(true);
+        ruleMock2.SetupGet(x => x.IsEnabled).Returns(true);
 
-//        // Assert
-//        count.Should().Be(2);
-//    }
+        var rules = new IRule[] { ruleMock1.Object, ruleMock2.Object };
 
-//    [Fact]
-//    public void GivenRuleSet_WhenAddingRule_ThenCountIncreases()
-//    {
-//        // Arrange
-//        var ruleSet = new RuleSet();
-//        var mockRule = new Mock<IRule>();
+        RuleSet sut = new();
 
-//        // Act
-//        ruleSet.Add(mockRule.Object);
-//        var count = ruleSet.Count;
+        // Act
+        sut.AddRange(rules);
 
-//        // Assert
-//        count.Should().Be(1);
-//    }
+        // Assert
+        sut.Rules.Should().Contain(rules);
+    }
 
-//    [Fact]
-//    public void GivenRuleSet_WhenRemovingRule_ThenCountDecreases()
-//    {
-//        // Arrange
-//        var mockRule1 = new Mock<IRule>();
-//        var mockRule2 = new Mock<IRule>();
-//        var rules = new List<IRule> { mockRule1.Object, mockRule2.Object };
-//        var ruleSet = new RuleSet(rules);
+    [Fact]
+    public void GivenRule_WhenInsertBefore_ThenRuleSetContainSpecifiedRuleOnSpecifiedPlace()
+    {
+        // Arrange
+        var ruleMock1 = new Mock<IRule>();
+        var ruleMock2 = new Mock<IRule>();
+        ruleMock1.SetupGet(x => x.IsEnabled).Returns(true);
+        ruleMock2.SetupGet(x => x.IsEnabled).Returns(true);
 
-//        // Act
-//        ruleSet.Remove(mockRule1.Object);
-//        var count = ruleSet.Count;
+        RuleSet sut = new();
+        sut.Add(ruleMock1.Object);
 
-//        // Assert
-//        count.Should().Be(1);
-//    }
+        // Act
+        sut.InsertBefore(ruleMock1.Object, ruleMock2.Object);
 
-//    [Fact]
-//    public async Task GivenDependedRule_WhenPrepareRules_ThenDependenciesAreChecked()
-//    {
-//        // Arrange
-//        var mockDependedRule = new Mock<IDependedRule>();
-//        var mockDependency = new Mock<IRule>();
-//        mockDependedRule.Setup(r => r.IsEnabled).Returns(true);
-//        mockDependedRule.Setup(r => r.Dependencies).Returns(new Dictionary<IRule, string[]> { { mockDependency.Object, new string[0] } }.ToImmutableDictionary());
+        // Assert
+        sut.Rules.Should().Contain(ruleMock2.Object);
+        sut.Rules.Should().ContainInOrder(ruleMock2.Object, ruleMock1.Object);
+    }
 
-//        var ruleSet = new RuleSet(new List<IRule> { mockDependedRule.Object, mockDependency.Object });
+    [Fact]
+    public void GivenRuleSet_WhenRemove_ThenRuleSetNotContainRemovedRule()
+    {
+        // Arrange
+        var ruleMock = new Mock<IRule>();
+        ruleMock.SetupGet(x => x.IsEnabled).Returns(true);
 
-//        // Act
-//        await ruleSet.PrepareRules();
+        RuleSet sut = new();
+        sut.Add(ruleMock.Object);
 
-//        // Assert
-//        mockDependedRule.Verify(r => r.RemoveDependency(mockDependency.Object), Times.Once);
-//    }
+        // Act
+        sut.Remove(ruleMock.Object);
 
-//    [Fact]
-//    public void GivenDependedRule_WhenAddDependency_ThenDependencyIsAdded()
-//    {
-//        // Arrange
-//        var mockDependedRule = new Mock<IDependedRule>();
-//        var mockDependency = new Mock<IRule>();
-//        mockDependedRule.Setup(r => r.IsEnabled).Returns(true);
-//        mockDependency.Setup(r => r.IsEnabled).Returns(true);
+        // Assert
+        sut.Rules.Should().NotContain(ruleMock.Object);
+    }
 
-//        var ruleSet = new RuleSet(new List<IRule> { mockDependedRule.Object, mockDependency.Object });
+    [Fact]
+    public void GivenRuleSet_WhenRemoveRange_ThenRuleSetNotContainRemovedRules()
+    {
+        // Arrange
+        var ruleMock1 = new Mock<IRule>();
+        var ruleMock2 = new Mock<IRule>();
+        ruleMock1.SetupGet(x => x.IsEnabled).Returns(true);
+        ruleMock2.SetupGet(x => x.IsEnabled).Returns(true);
 
-//        // Act
-//        ruleSet.AddDependency(mockDependedRule.Object, mockDependency.Object);
+        var rules = new IRule[] { ruleMock1.Object, ruleMock2.Object };
 
-//        // Assert
-//        mockDependedRule.Verify(r => r.AddDependency(mockDependency.Object), Times.Once);
-//    }
+        RuleSet sut = new();
+        sut.AddRange(rules);
 
-//    [Fact]
-//    public void GivenDependedRule_WhenRemoveDependency_ThenDependencyIsRemoved()
-//    {
-//        // Arrange
-//        var mockDependedRule = new Mock<IDependedRule>();
-//        var mockDependency = new Mock<IRule>();
-//        mockDependedRule.Setup(r => r.IsEnabled).Returns(true);
-//        mockDependedRule.Setup(r => r.Dependencies).Returns(new Dictionary<IRule, string[]> { { mockDependency.Object, new string[0] } }.ToImmutableDictionary());
+        // Act
+        sut.RemoveRange(rules);
 
-//        var ruleSet = new RuleSet(new List<IRule> { mockDependedRule.Object, mockDependency.Object });
+        // Assert
+        sut.Rules.Should().NotContain(rules);
+    }
 
-//        // Act
-//        ruleSet.RemoveDependency(mockDependedRule.Object, mockDependency.Object);
+    [Fact]
+    public void GivenRuleSet_WhenClear_ThenRuleSetNotContainAnyRules()
+    {
+        // Arrange
+        var ruleMock = new Mock<IRule>();
+        ruleMock.SetupGet(x => x.IsEnabled).Returns(true);
 
-//        // Assert
-//        mockDependedRule.Verify(r => r.RemoveDependency(mockDependency.Object), Times.Once);
-//    }
+        RuleSet sut = new();
+        sut.Add(ruleMock.Object);
 
-//    [Fact]
-//    public void GivenDependedRule_WhenClearDependencies_ThenDependenciesAreCleared()
-//    {
-//        // Arrange
-//        var mockDependedRule = new Mock<IDependedRule>();
-//        mockDependedRule.Setup(r => r.IsEnabled).Returns(true);
-//        mockDependedRule.Setup(r => r.Dependencies).Returns(new Dictionary<IRule, string[]> { { new Mock<IRule>().Object, new string[0] } }.ToImmutableDictionary());
+        // Act
+        sut.Clear();
 
-//        var ruleSet = new RuleSet(new List<IRule> { mockDependedRule.Object });
-
-//        // Act
-//        ruleSet.ClearDependencies(mockDependedRule.Object);
-
-//        // Assert
-//        mockDependedRule.Verify(r => r.ClearDependencies(), Times.Once);
-//    }
-
-//    [Fact]
-//    public void GivenRuleSet_WhenGettingEnumerator_ThenReturnsEnabledRules()
-//    {
-//        // Arrange
-//        var mockRule1 = new Mock<IRule>();
-//        mockRule1.Setup(r => r.IsEnabled).Returns(true);
-//        var mockRule2 = new Mock<IRule>();
-//        mockRule2.Setup(r => r.IsEnabled).Returns(false);
-
-//        var ruleSet = new RuleSet(new List<IRule> { mockRule1.Object, mockRule2.Object });
-
-//        // Act
-//        var enabledRules = ruleSet.ToList();
-
-//        // Assert
-//        enabledRules.Should().HaveCount(1);
-//        enabledRules.First().Should().Be(mockRule1.Object);
-//    }
-//}
+        // Assert
+        sut.Rules.Should().BeEmpty();
+    }
+}
