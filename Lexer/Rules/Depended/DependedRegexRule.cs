@@ -40,9 +40,15 @@ public class DependedRegexRule : DependedRuleBase
     /// </summary>
     /// <param name="pattern">The regular expression pattern.</param>
     /// <param name="type">The type of the rule.</param>
-    /// <param name="ruleOptions">The options for the rule.</param>
-    /// <param name="isIgnored">Optional. Specifies whether lexemes found by this rule should be ignored in the output. Defaults to false.</param>
-    /// <param name="isEnabled">Optional. Specifies whether this rule is enabled and should be used in the lexeme identification process. Defaults to true.</param>
+    /// <exception cref="ArgumentNullException">Thrown when a null pattern or type is passed to the constructor.</exception>
+    public DependedRegexRule([StringSyntax("Regex")] string pattern, string type) : this(pattern, RegexOptions.None, type, new()) { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DependedRegexRule"/> class with the specified pattern and type.
+    /// </summary>
+    /// <param name="pattern">The regular expression pattern.</param>
+    /// <param name="type">The type of the rule.</param>
+    /// <param name="ruleSettings">The settings for the rule.</param>
     /// <exception cref="ArgumentNullException">Thrown when a null pattern or type is passed to the constructor.</exception>
     public DependedRegexRule([StringSyntax("Regex")] string pattern, string type, DependedRegexRuleSettings ruleSettings) : this(pattern, RegexOptions.None, type, ruleSettings) { }
 
@@ -52,9 +58,16 @@ public class DependedRegexRule : DependedRuleBase
     /// <param name="pattern">The regular expression pattern.</param>
     /// <param name="regexOptions">The options for the regular expression.</param>
     /// <param name="type">The type of the rule.</param>
-    /// <param name="ruleOptions">The options for the rule.</param>
-    /// <param name="isIgnored">Optional. Specifies whether lexemes found by this rule should be ignored in the output. Defaults to false.</param>
-    /// <param name="isEnabled">Optional. Specifies whether this rule is enabled and should be used in the lexeme identification process. Defaults to true.</param>
+    /// <exception cref="ArgumentNullException">Thrown when a null pattern or type is passed to the constructor.</exception>
+    public DependedRegexRule([StringSyntax("Regex")] string pattern, RegexOptions regexOptions, string type) : this(pattern, regexOptions, type, new()) { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DependedRegexRule"/> class with the specified pattern, options, and type.
+    /// </summary>
+    /// <param name="pattern">The regular expression pattern.</param>
+    /// <param name="regexOptions">The options for the regular expression.</param>
+    /// <param name="type">The type of the rule.</param>
+    /// <param name="ruleSettings">The settings for the rule.</param>
     /// <exception cref="ArgumentNullException">Thrown when a null pattern or type is passed to the constructor.</exception>
     public DependedRegexRule([StringSyntax("Regex")] string pattern, RegexOptions regexOptions, string type, DependedRegexRuleSettings ruleSettings) : base(type, ruleSettings)
     {

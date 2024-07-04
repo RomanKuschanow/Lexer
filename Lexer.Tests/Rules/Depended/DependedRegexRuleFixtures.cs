@@ -2,194 +2,177 @@
 using Lexer.Rules.Depended;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
+using Lexer.Rules.RawResults.Interfaces;
 using Lexer.Rules.RuleInputs.Interfaces;
 using Moq;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
 namespace Lexer.Tests.Rules.Depended;
-//public class DependedRegexRuleFixtures
-//{
-//    [Fact]
-//    public void GivenValidInputs_WhenCreatingInstance_ThenPropertiesAreSetCorrectly()
-//    {
-//        // Arrange
-//        string pattern = @"<rule1>";
-//        var ruleSettings = new DependedRegexRuleSettings("depended", DependedRuleOptions.None);
+public class DependedRegexRuleFixtures
+{
+    [Fact]
+    public void GivenValidInputs_WhenCreatingInstance_ThenPropertiesAreSetCorrectly()
+    {
+        // Arrange
+        string pattern = @"<rule1>";
 
-//        // Act
-//        var sut = new DependedRegexRule(pattern, ruleSettings);
+        // Act
+        var sut = new DependedRegexRule(pattern, "depended");
 
-//        // Assert
-//        sut.Pattern.Should().Be(pattern);
-//        sut.RegexOptions.Should().Be(RegexOptions.None);
-//        sut.RuleOptions.Should().Be(DependedRuleOptions.None);
-//        sut.Type.Should().Be("depended");
-//        sut.IsIgnored.Should().BeFalse();
-//        sut.IsOnlyForDependentRules.Should().BeFalse();
-//        sut.IsEnabled.Should().BeTrue();
-//    }
+        // Assert
+        sut.Pattern.Should().Be(pattern);
+        sut.RegexOptions.Should().Be(RegexOptions.None);
+        sut.RuleOptions.Should().Be(DependedRuleOptions.None);
+        sut.Type.Should().Be("depended");
+        sut.IsIgnored.Should().BeFalse();
+        sut.IsOnlyForDependentRules.Should().BeFalse();
+        sut.IsEnabled.Should().BeTrue();
+    }
 
-//    [Fact]
-//    public void GivenNullPattern_WhenCreatingInstance_ThenThrowsArgumentNullException()
-//    {
-//        // Arrange
-//        var ruleSettings = new DependedRegexRuleSettings("depended", DependedRuleOptions.None);
+    [Fact]
+    public void GivenNullPattern_WhenCreatingInstance_ThenThrowsArgumentNullException()
+    {
+        // Arrange
+        // Act
+        Action act = () => _ = new DependedRegexRule(null, "depended");
 
-//        // Act
-//        Action act = () => new DependedRegexRule(null, ruleSettings);
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
 
-//        // Assert
-//        act.Should().Throw<ArgumentNullException>();
-//    }
+    [Fact]
+    public void GivenValidInput_WhenFindingLexemes_ThenReturnsExpectedLexemes()
+    {
+        // Arrange
+        string pattern = @"<rule1>\s<rule2>";
+        var sut = new DependedRegexRule(pattern, "depended");
 
-//    [Fact]
-//    public async Task GivenValidInput_WhenFindingLexemes_ThenReturnsExpectedLexemes()
-//    {
-//        // Arrange
-//        string pattern = @"<rule1>\s<rule2>";
-//        var ruleSettings = new DependedRegexRuleSettings("depended");
-//        var sut = new DependedRegexRule(pattern, ruleSettings);
+        var mockRule1 = new Mock<IRule>();
+        var mockRule2 = new Mock<IRule>();
+        var analyzedLayerMock1 = new Mock<IRawLayer>();
+        analyzedLayerMock1.Setup(x => x.RawLexemes).Returns(new List<RawLexeme>
+        {
+            new(0, 4, mockRule1.Object), // test
+            new(9, 3, mockRule2.Object) // bar
+        });
+        var analyzedLayerMock2 = new Mock<IRawLayer>();
+        analyzedLayerMock2.Setup(x => x.RawLexemes).Returns(new List<RawLexeme>
+        {
+            new(5, 3, mockRule1.Object),  // foo
+            new(13, 3, mockRule2.Object) // baz
+        });
 
-//        var mockRule1 = new Mock<IRule>();
-//        var mockRule2 = new Mock<IRule>();
-//        var analyzedLayer1 = await RawLayer.FromIEnumerable(new List<RawLexeme>
-//        {
-//            new RawLexeme(0, 4, mockRule1.Object), // test
-//            new RawLexeme(9, 3, mockRule2.Object) // bar
-//        });
-//        var analyzedLayer2 = await RawLayer.FromIEnumerable(new List<RawLexeme>
-//        {
-//            new RawLexeme(5, 3, mockRule1.Object),  // foo
-//            new RawLexeme(13, 3, mockRule2.Object) // baz
-//        });
+        sut.AddDependency(mockRule1.Object, "rule1");
+        sut.AddDependency(mockRule2.Object, "rule2");
 
-//        sut.AddDependency(mockRule1.Object, "rule1");
-//        sut.AddDependency(mockRule2.Object, "rule2");
+        var mockInput = new Mock<IDependedRuleInput>();
+        mockInput.SetupGet(x => x.Text).Returns("test foo bar baz");
+        mockInput.SetupGet(x => x.Dependencies).Returns(new Dictionary<IRule, IRawLayer>
+        {
+            { mockRule1.Object, analyzedLayerMock1.Object },
+            { mockRule2.Object, analyzedLayerMock2.Object }
+        }.ToImmutableDictionary());
 
-//        var mockInput = new Mock<IDependedRuleInput>();
-//        mockInput.SetupGet(x => x.Text).Returns("test foo bar baz");
-//        mockInput.SetupGet(x => x.Dependencies).Returns(new Dictionary<IRule, RawLayer>
-//        {
-//            { mockRule1.Object, analyzedLayer1 },
-//            { mockRule2.Object, analyzedLayer2 }
-//        }.ToImmutableDictionary());
+        // Act
+        var result = sut.FindLexemes(mockInput.Object);
 
-//        // Act
-//        var result = await sut.FindLexemes(mockInput.Object, CancellationToken.None);
+        // Assert
+        result.Should().HaveCount(2);
+        result.Should().Contain(lexeme => lexeme.Start == 0 && lexeme.Length == 8);  // test foo
+        result.Should().Contain(lexeme => lexeme.Start == 9 && lexeme.Length == 7);  // bar baz
+    }
 
-//        // Assert
-//        result.Should().HaveCount(2);
-//        result.Should().Contain(lexeme => lexeme.Start == 0 && lexeme.Length == 8);  // test foo
-//        result.Should().Contain(lexeme => lexeme.Start == 9 && lexeme.Length == 7);  // bar baz
-//    }
+    [Fact]
+    public void GivenValidInput_WhenFindingLexemesWithAlwaysSameData_ThenReturnsExpectedLexemes()
+    {
+        // Arrange
+        string pattern = @"<rule1>\s<rule2>\s<rule1>";
+        var sut = new DependedRegexRule(pattern, "depended", new(DependedRuleOptions.AlwaysSameData));
 
-//    [Fact]
-//    public async Task GivenValidInput_WhenFindingLexemesWithAlwaysSameData_ThenReturnsExpectedLexemes()
-//    {
-//        // Arrange
-//        string pattern = @"<rule1>\s<rule2>\s<rule1>";
-//        var ruleSettings = new DependedRegexRuleSettings("depended", DependedRuleOptions.AlwaysSameData);
-//        var sut = new DependedRegexRule(pattern, ruleSettings);
+        var mockRule1 = new Mock<IRule>();
+        var mockRule2 = new Mock<IRule>();
+        var analyzedLayerMock1 = new Mock<IRawLayer>();
+        analyzedLayerMock1.Setup(x => x.RawLexemes).Returns(new List<RawLexeme>
+        {
+            new(0, 4, mockRule1.Object), // test
+            new(23, 5, mockRule1.Object), // _test
+        });
+        var analyzedLayerMock2 = new Mock<IRawLayer>();
+        analyzedLayerMock2.Setup(x => x.RawLexemes).Returns(new List<RawLexeme>
+        {
+            new(5, 3, mockRule1.Object),  // foo
+            new(19, 3, mockRule1.Object)  // foo
+        });
 
-//        var mockRule1 = new Mock<IRule>();
-//        var mockRule2 = new Mock<IRule>();
-//        var analyzedLayer1 = await RawLayer.FromIEnumerable(new List<RawLexeme>
-//        {
-//            new RawLexeme(0, 4, mockRule1.Object), // test
-//        });
-//        var analyzedLayer2 = await RawLayer.FromIEnumerable(new List<RawLexeme>
-//        {
-//            new RawLexeme(5, 3, mockRule1.Object),  // foo
-//            new RawLexeme(14, 3, mockRule1.Object)  // foo
-//        });
+        sut.AddDependency(mockRule1.Object, "rule1");
+        sut.AddDependency(mockRule2.Object, "rule2");
 
-//        sut.AddDependency(mockRule1.Object, "rule1");
-//        sut.AddDependency(mockRule2.Object, "rule2");
+        var mockInput = new Mock<IDependedRuleInput>();
+        mockInput.SetupGet(x => x.Text).Returns("test foo test test foo _test");
+        mockInput.SetupGet(x => x.Dependencies).Returns(new Dictionary<IRule, IRawLayer>
+        {
+            { mockRule1.Object, analyzedLayerMock1.Object },
+            { mockRule2.Object, analyzedLayerMock2.Object }
+        }.ToImmutableDictionary());
 
-//        var mockInput = new Mock<IDependedRuleInput>();
-//        mockInput.SetupGet(x => x.Text).Returns("test foo test foo");
-//        mockInput.SetupGet(x => x.Dependencies).Returns(new Dictionary<IRule, RawLayer>
-//        {
-//            { mockRule1.Object, analyzedLayer1 },
-//            { mockRule2.Object, analyzedLayer2 }
-//        }.ToImmutableDictionary());
+        // Act
+        var result = sut.FindLexemes(mockInput.Object);
 
-//        // Act
-//        var result = await sut.FindLexemes(mockInput.Object, CancellationToken.None);
+        // Assert
+        result.Should().HaveCount(1);
+        result.Should().Contain(lexeme => lexeme.Start == 0 && lexeme.Length == 13);  // test foo test
+    }
 
-//        // Assert
-//        result.Should().HaveCount(1);
-//        result.Should().Contain(lexeme => lexeme.Start == 0 && lexeme.Length == 13);  // test foo test
-//    }
+    [Fact]
+    public void GivenValidInput_WhenFindingLexemesWithoutAlwaysSameData_ThenReturnsExpectedLexemes()
+    {
+        // Arrange
+        string pattern = @"<rule1>\s<rule1>";
+        var sut = new DependedRegexRule(pattern, "depended");
 
-//    [Fact]
-//    public async Task GivenValidInput_WhenFindingLexemesWithoutAlwaysSameData_ThenReturnsExpectedLexemes()
-//    {
-//        // Arrange
-//        string pattern = @"<rule1>\s<rule1>";
-//        var ruleSettings = new DependedRegexRuleSettings("depended", DependedRuleOptions.None);
-//        var sut = new DependedRegexRule(pattern, ruleSettings);
+        var mockRule1 = new Mock<IRule>();
+        var analyzedLayerMock = new Mock<IRawLayer>();
+        analyzedLayerMock.Setup(x => x.RawLexemes).Returns(new List<RawLexeme>
+        {
+            new(0, 4, mockRule1.Object), // test
+            new(5, 3, mockRule1.Object)  // foo
+        });
 
-//        var mockRule1 = new Mock<IRule>();
-//        var analyzedLayer1 = await RawLayer.FromIEnumerable(new List<RawLexeme>
-//        {
-//            new RawLexeme(0, 4, mockRule1.Object), // test
-//            new RawLexeme(5, 3, mockRule1.Object)  // foo
-//        });
+        sut.AddDependency(mockRule1.Object, "rule1");
 
-//        sut.AddDependency(mockRule1.Object, "rule1");
+        var mockInput = new Mock<IDependedRuleInput>();
+        mockInput.SetupGet(x => x.Text).Returns("test foo test foo");
+        mockInput.SetupGet(x => x.Dependencies).Returns(new Dictionary<IRule, IRawLayer>
+        {
+            { mockRule1.Object, analyzedLayerMock.Object }
+        }.ToImmutableDictionary());
 
-//        var mockInput = new Mock<IDependedRuleInput>();
-//        mockInput.SetupGet(x => x.Text).Returns("test foo test foo");
-//        mockInput.SetupGet(x => x.Dependencies).Returns(new Dictionary<IRule, RawLayer>
-//        {
-//            { mockRule1.Object, analyzedLayer1 }
-//        }.ToImmutableDictionary());
+        // Act
+        var result = sut.FindLexemes(mockInput.Object);
 
-//        // Act
-//        var result = await sut.FindLexemes(mockInput.Object, CancellationToken.None);
+        // Assert
+        result.Should().HaveCount(3);
+        result.Should().Contain(lexeme => lexeme.Start == 0 && lexeme.Length == 8);  // test foo
+        result.Should().Contain(lexeme => lexeme.Start == 5 && lexeme.Length == 8);  // foo test
+        result.Should().Contain(lexeme => lexeme.Start == 9 && lexeme.Length == 8);  // test foo
+    }
 
-//        // Assert
-//        result.Should().HaveCount(2);
-//        result.Should().Contain(lexeme => lexeme.Start == 0 && lexeme.Length == 8);  // test foo
-//        result.Should().Contain(lexeme => lexeme.Start == 9 && lexeme.Length == 8);  // test foo
-//    }
+    [Fact]
+    public void GivenInvalidInput_WhenFindingLexemes_ThenThrowsArgumentException()
+    {
+        // Arrange
+        string pattern = @"<rule1>";
+        var sut = new DependedRegexRule(pattern, "depended");
 
-//    [Fact]
-//    public async Task GivenInvalidInput_WhenFindingLexemes_ThenThrowsArgumentException()
-//    {
-//        // Arrange
-//        string pattern = @"<rule1>";
-//        var ruleSettings = new DependedRegexRuleSettings("depended", DependedRuleOptions.None);
-//        var sut = new DependedRegexRule(pattern, ruleSettings);
+        var mockInput = new Mock<IRuleInput>();
+        mockInput.SetupGet(x => x.Text).Returns("test");
 
-//        var mockInput = new Mock<IRuleInput>();
-//        mockInput.SetupGet(x => x.Text).Returns("test");
+        // Act
+        Action act = () => _ = sut.FindLexemes(mockInput.Object);
 
-//        // Act
-//        Func<Task> act = async () => await sut.FindLexemes(mockInput.Object, CancellationToken.None);
-
-//        // Assert
-//        await act.Should().ThrowAsync<ArgumentException>();
-//    }
-
-//    [Fact]
-//    public void GivenVisitorAndVisitorInput_WhenAccept_ThenCallsVisitorDependencyRule()
-//    {
-//        // Arrange
-//        string pattern = @"<rule1>";
-//        var ruleSettings = new DependedRegexRuleSettings("depended", DependedRuleOptions.None);
-//        var sut = new DependedRegexRule(pattern, ruleSettings);
-
-//        var mockVisitor = new Mock<IRuleVisitor>();
-//        var visitorInput = new VisitorInput("sample text", new Dictionary<IRule, RawLayer>());
-
-//        // Act
-//        sut.Accept(mockVisitor.Object, visitorInput);
-
-//        // Assert
-//        mockVisitor.Verify(v => v.DependencyRule(visitorInput, sut), Times.Once);
-//    }
-//}
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+}
 
