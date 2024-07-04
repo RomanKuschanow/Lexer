@@ -7,114 +7,70 @@ using Moq;
 using System.Text.RegularExpressions;
 
 namespace Lexer.Tests.Rules.Common;
-//public class DelimiterRuleFixtures
-//{
-//    [Fact]
-//    public void GivenValidInputs_WhenCreatingInstance_ThenPropertiesAreSetCorrectly()
-//    {
-//        // Arrange
-//        var startDelimiter = new Regex(@"\{");
-//        var endDelimiter = new Regex(@"\}");
-//        var mockRuleSettings = new Mock<IRuleSettings>();
-//        mockRuleSettings.SetupGet(x => x.Type).Returns("delimiter");
-//        mockRuleSettings.SetupGet(x => x.IsIgnored).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsOnlyForDependentRules).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsEnabled).Returns(true);
+public class DelimiterRuleFixtures
+{
+    [Fact]
+    public void GivenValidInputs_WhenCreatingInstance_ThenPropertiesAreSetCorrectly()
+    {
+        // Arrange
+        var startDelimiter = new Regex(@"\{");
+        var endDelimiter = new Regex(@"\}");
 
-//        // Act
-//        var sut = new DelimiterRule(startDelimiter, endDelimiter, mockRuleSettings.Object);
+        // Act
+        var sut = new DelimiterRule(startDelimiter, endDelimiter, "delimiter");
 
-//        // Assert
-//        sut.Type.Should().Be("delimiter");
-//        sut.IsIgnored.Should().BeFalse();
-//        sut.IsOnlyForDependentRules.Should().BeFalse();
-//        sut.IsEnabled.Should().BeTrue();
-//        sut.StartDelimiter.Should().Be(startDelimiter);
-//        sut.EndDelimiter.Should().Be(endDelimiter);
-//    }
+        // Assert
+        sut.Type.Should().Be("delimiter");
+        sut.IsIgnored.Should().BeFalse();
+        sut.IsOnlyForDependentRules.Should().BeFalse();
+        sut.IsEnabled.Should().BeTrue();
+        sut.StartDelimiter.Should().Be(startDelimiter);
+        sut.EndDelimiter.Should().Be(endDelimiter);
+    }
 
-//    [Fact]
-//    public void GivenNullStartDelimiter_WhenCreatingInstance_ThenThrowsArgumentNullException()
-//    {
-//        // Arrange
-//        var endDelimiter = new Regex(@"\}");
-//        var mockRuleSettings = new Mock<IRuleSettings>();
-//        mockRuleSettings.SetupGet(x => x.Type).Returns("delimiter");
-//        mockRuleSettings.SetupGet(x => x.IsIgnored).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsOnlyForDependentRules).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsEnabled).Returns(true);
+    [Fact]
+    public void GivenNullStartDelimiter_WhenCreatingInstance_ThenThrowsArgumentNullException()
+    {
+        // Arrange
+        var endDelimiter = new Regex(@"\}");
 
-//        // Act
-//        Action act = () => new DelimiterRule(null, endDelimiter, mockRuleSettings.Object);
+        // Act
+        Action act = () => _ = new DelimiterRule(null, endDelimiter, "delimiter");
 
-//        // Assert
-//        act.Should().Throw<ArgumentNullException>();
-//    }
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
 
-//    [Fact]
-//    public void GivenNullEndDelimiter_WhenCreatingInstance_ThenThrowsArgumentNullException()
-//    {
-//        // Arrange
-//        var startDelimiter = new Regex(@"\{");
-//        var mockRuleSettings = new Mock<IRuleSettings>();
-//        mockRuleSettings.SetupGet(x => x.Type).Returns("delimiter");
-//        mockRuleSettings.SetupGet(x => x.IsIgnored).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsOnlyForDependentRules).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsEnabled).Returns(true);
+    [Fact]
+    public void GivenNullEndDelimiter_WhenCreatingInstance_ThenThrowsArgumentNullException()
+    {
+        // Arrange
+        var startDelimiter = new Regex(@"\{");
 
-//        // Act
-//        Action act = () => new DelimiterRule(startDelimiter, null, mockRuleSettings.Object);
+        // Act
+        Action act = () => _ = new DelimiterRule(startDelimiter, null, "delimiter");
 
-//        // Assert
-//        act.Should().Throw<ArgumentNullException>();
-//    }
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
 
-//    [Fact]
-//    public async Task GivenValidInput_WhenFindingLexemes_ThenReturnsExpectedLexemes()
-//    {
-//        // Arrange
-//        var startDelimiter = new Regex(@"\{");
-//        var endDelimiter = new Regex(@"\}");
-//        var mockRuleSettings = new Mock<IRuleSettings>();
-//        mockRuleSettings.SetupGet(x => x.Type).Returns("delimiter");
-//        mockRuleSettings.SetupGet(x => x.IsIgnored).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsOnlyForDependentRules).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsEnabled).Returns(true);
+    [Fact]
+    public void GivenValidInput_WhenFindingLexemes_ThenReturnsExpectedLexemes()
+    {
+        // Arrange
+        var startDelimiter = new Regex(@"\{");
+        var endDelimiter = new Regex(@"\}");
 
-//        var sut = new DelimiterRule(startDelimiter, endDelimiter, mockRuleSettings.Object);
+        var sut = new DelimiterRule(startDelimiter, endDelimiter, "delimiter");
 
-//        var mockInput = new Mock<IRuleInput>();
-//        mockInput.SetupGet(x => x.Text).Returns("This is a {test} sample.");
+        var mockInput = new Mock<IRuleInput>();
+        mockInput.SetupGet(x => x.Text).Returns("This is a {test} sample.");
 
-//        // Act
-//        var result = await sut.FindLexemes(mockInput.Object, CancellationToken.None);
+        // Act
+        var result = sut.FindLexemes(mockInput.Object);
 
-//        // Assert
-//        result.Should().HaveCount(1);
-//        result.Should().Contain(lexeme => lexeme.Start == 10 && lexeme.Length == 6); // {test}
-//    }
-
-//    [Fact]
-//    public void GivenVisitorAndVisitorInput_WhenAccept_ThenCallsVisitorRule()
-//    {
-//        // Arrange
-//        var startDelimiter = new Regex(@"\{");
-//        var endDelimiter = new Regex(@"\}");
-//        var mockRuleSettings = new Mock<IRuleSettings>();
-//        mockRuleSettings.SetupGet(x => x.Type).Returns("delimiter");
-//        mockRuleSettings.SetupGet(x => x.IsIgnored).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsOnlyForDependentRules).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsEnabled).Returns(true);
-
-//        var sut = new DelimiterRule(startDelimiter, endDelimiter, mockRuleSettings.Object);
-
-//        var mockVisitor = new Mock<IRuleVisitor>();
-//        var visitorInput = new VisitorInput("sample text", new Dictionary<IRule, RawLayer>());
-
-//        // Act
-//        sut.Accept(mockVisitor.Object, visitorInput);
-
-//        // Assert
-//        mockVisitor.Verify(v => v.Rule(visitorInput), Times.Once);
-//    }
-//}
+        // Assert
+        result.Should().HaveCount(1);
+        result.Should().Contain(lexeme => lexeme.Start == 10 && lexeme.Length == 6); // {test}
+    }
+}
