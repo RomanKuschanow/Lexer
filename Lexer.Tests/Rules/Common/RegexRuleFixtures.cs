@@ -7,94 +7,57 @@ using Moq;
 using System.Text.RegularExpressions;
 
 namespace Lexer.Tests.Rules.Common;
-//public class RegexRuleFixtures
-//{
-//    [Fact]
-//    public void GivenValidInputs_WhenCreatingInstance_ThenPropertiesAreSetCorrectly()
-//    {
-//        // Arrange
-//        var regex = new Regex(@"\w+");
-//        var mockRuleSettings = new Mock<IRuleSettings>();
-//        mockRuleSettings.SetupGet(x => x.Type).Returns("word");
-//        mockRuleSettings.SetupGet(x => x.IsIgnored).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsOnlyForDependentRules).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsEnabled).Returns(true);
+public class RegexRuleFixtures
+{
+    [Fact]
+    public void GivenValidInputs_WhenCreatingInstance_ThenPropertiesAreSetCorrectly()
+    {
+        // Arrange
+        var regex = new Regex(@"\w+");
 
-//        // Act
-//        var sut = new RegexRule(regex, mockRuleSettings.Object);
+        // Act
+        var sut = new RegexRule(regex, "word");
 
-//        // Assert
-//        sut.Type.Should().Be("word");
-//        sut.IsIgnored.Should().BeFalse();
-//        sut.IsOnlyForDependentRules.Should().BeFalse();
-//        sut.IsEnabled.Should().BeTrue();
-//        sut.Regex.Should().Be(regex);
-//    }
+        // Assert
+        sut.Type.Should().Be("word");
+        sut.IsIgnored.Should().BeFalse();
+        sut.IsOnlyForDependentRules.Should().BeFalse();
+        sut.IsEnabled.Should().BeTrue();
+        sut.Regex.Should().Be(regex);
+    }
 
-//    [Fact]
-//    public void GivenNullRegex_WhenCreatingInstance_ThenThrowsArgumentNullException()
-//    {
-//        // Arrange
-//        var mockRuleSettings = new Mock<IRuleSettings>();
-//        mockRuleSettings.SetupGet(x => x.Type).Returns("word");
-//        mockRuleSettings.SetupGet(x => x.IsIgnored).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsOnlyForDependentRules).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsEnabled).Returns(true);
+    [Fact]
+    public void GivenNullRegex_WhenCreatingInstance_ThenThrowsArgumentNullException()
+    {
+        // Arrange
+        Regex regex = null!;
 
-//        // Act
-//        Action act = () => new RegexRule(null, mockRuleSettings.Object);
+        // Act
+        Action act = () => _ = new RegexRule(regex, "word");
 
-//        // Assert
-//        act.Should().Throw<ArgumentNullException>();
-//    }
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
 
-//    [Fact]
-//    public async Task GivenValidInput_WhenFindingLexemes_ThenReturnsExpectedLexemes()
-//    {
-//        // Arrange
-//        var regex = new Regex(@"\w+");
-//        var mockRuleSettings = new Mock<IRuleSettings>();
-//        mockRuleSettings.SetupGet(x => x.Type).Returns("word");
-//        mockRuleSettings.SetupGet(x => x.IsIgnored).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsOnlyForDependentRules).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsEnabled).Returns(true);
+    [Fact]
+    public void GivenValidInput_WhenFindingLexemes_ThenReturnsExpectedLexemes()
+    {
+        // Arrange
+        var regex = new Regex(@"\w+");
 
-//        var sut = new RegexRule(regex, mockRuleSettings.Object);
+        var sut = new RegexRule(regex, "word");
 
-//        var mockInput = new Mock<IRuleInput>();
-//        mockInput.SetupGet(x => x.Text).Returns("This is a test.");
+        var mockInput = new Mock<IRuleInput>();
+        mockInput.SetupGet(x => x.Text).Returns("This is a test.");
 
-//        // Act
-//        var result = await sut.FindLexemes(mockInput.Object, CancellationToken.None);
+        // Act
+        var result = sut.FindLexemes(mockInput.Object);
 
-//        // Assert
-//        result.Should().HaveCount(4);
-//        result.Should().Contain(lexeme => lexeme.Start == 0 && lexeme.Length == 4); // This
-//        result.Should().Contain(lexeme => lexeme.Start == 5 && lexeme.Length == 2); // is
-//        result.Should().Contain(lexeme => lexeme.Start == 8 && lexeme.Length == 1); // a
-//        result.Should().Contain(lexeme => lexeme.Start == 10 && lexeme.Length == 4); // test
-//    }
-
-//    [Fact]
-//    public void GivenVisitorAndVisitorInput_WhenAccept_ThenCallsVisitorRule()
-//    {
-//        // Arrange
-//        var regex = new Regex(@"\w+");
-//        var mockRuleSettings = new Mock<IRuleSettings>();
-//        mockRuleSettings.SetupGet(x => x.Type).Returns("word");
-//        mockRuleSettings.SetupGet(x => x.IsIgnored).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsOnlyForDependentRules).Returns(false);
-//        mockRuleSettings.SetupGet(x => x.IsEnabled).Returns(true);
-
-//        var sut = new RegexRule(regex, mockRuleSettings.Object);
-
-//        var mockVisitor = new Mock<IRuleVisitor>();
-//        var visitorInput = new VisitorInput("sample text", new Dictionary<IRule, RawLayer>());
-
-//        // Act
-//        sut.Accept(mockVisitor.Object, visitorInput);
-
-//        // Assert
-//        mockVisitor.Verify(v => v.Rule(visitorInput), Times.Once);
-//    }
-//}
+        // Assert
+        result.Should().HaveCount(4);
+        result.Should().Contain(lexeme => lexeme.Start == 0 && lexeme.Length == 4); // This
+        result.Should().Contain(lexeme => lexeme.Start == 5 && lexeme.Length == 2); // is
+        result.Should().Contain(lexeme => lexeme.Start == 8 && lexeme.Length == 1); // a
+        result.Should().Contain(lexeme => lexeme.Start == 10 && lexeme.Length == 4); // test
+    }
+}
