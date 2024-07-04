@@ -13,7 +13,10 @@ public class ProcessedLayersIntermediateData : IDictionaryIntermediateData<IRule
     /// </summary>
     private Dictionary<IRule, IRawLayer> ProcessedLayers { get; set; }
 
-    public ProcessedLayersIntermediateData() { }
+    public ProcessedLayersIntermediateData()
+    {
+        ProcessedLayers = new Dictionary<IRule, IRawLayer>();
+    }
 
     public ProcessedLayersIntermediateData(IDictionary<IRule, IRawLayer> processedLayers)
     {

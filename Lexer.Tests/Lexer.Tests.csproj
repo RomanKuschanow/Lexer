@@ -28,7 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Analyzer\Middleware\" />
     <Folder Include="Analyzer\IntermediateData\" />
   </ItemGroup>
 
