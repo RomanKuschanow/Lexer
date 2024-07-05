@@ -31,11 +31,11 @@ public class MiddlewareCollection : IMiddlewareCollection
     /// </summary>
     /// <param name="data">The middleware to try to add.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> is null.</exception>
-    public void TryAdd(IMiddleware data)
+    public bool TryAdd(IMiddleware data)
     {
         ArgumentNullException.ThrowIfNull(data);
 
-        _middleware.TryAdd(data.GetType(), data);
+        return _middleware.TryAdd(data.GetType(), data);
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ public class MiddlewareCollection : IMiddlewareCollection
     /// </summary>
     /// <typeparam name="T">The type of the middleware to remove.</typeparam>
     /// <returns>True if the middleware was successfully removed; otherwise, false.</returns>
-    public bool Remove<T>() where T : IRule => _middleware.Remove(typeof(T));
+    public bool Remove(Type middlewareType) => _middleware.Remove(middlewareType);
 
     /// <summary>
     /// Retrieves middleware associated with the specified rule.
