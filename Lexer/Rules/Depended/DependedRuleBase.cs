@@ -12,7 +12,6 @@ using System.Collections.Immutable;
 namespace Lexer.Rules.Depended;
 [UseThisRawLayerCreator(typeof(RawLayerCreator))]
 [UseThisRuleInputCreator(typeof(DependedRuleInputCreator))]
-[UseThisMiddleware(typeof(AddLayerToDataCollection), necessary: true)]
 public abstract class DependedRuleBase : RuleBase, IDependedRule
 {
     private readonly Dictionary<IRule, string[]> _dependencies = new();

@@ -40,7 +40,7 @@ public class LexemeAnalyzer : IDisposable
     /// <summary>
     /// Gets the middleware from the middleware collection.
     /// </summary>
-    public IEnumerable<IMiddleware> Middleware => MiddlewareCollection.Middleware;
+    public IDictionary<Type, IEnumerable<IMiddleware>> Middleware => MiddlewareCollection.Middleware;
     /// <summary>
     /// Gets the rule input creators from the rule input factory.
     /// </summary>
