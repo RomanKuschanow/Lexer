@@ -10,120 +10,135 @@ namespace Lexer.Tests.Analyzer.Middleware;
 public class MiddlewareCollectionFixtures
 {
     [Fact]
-    public void GivenMiddleware_WhenAdd_ThenMiddlewareCollectionContainsSpecifiedMiddleware()
+    public void GivenTypeAndMiddleware_WhenAddIsCalled_ThenAddsMiddleware()
     {
         // Arrange
-        var middleware = Mock.Of<IMiddleware>();
-
-        MiddlewareCollection sut = new();
+        var collection = new MiddlewareCollection();
+        var middlewareMock = new Mock<IMiddleware>();
+        var ruleType = typeof(Mock<IRule>);
 
         // Act
-        sut.Add(middleware);
+        collection.Add(ruleType, middlewareMock.Object);
 
         // Assert
-        sut.Middleware.Should().Contain(middleware);
+        collection.Middleware[ruleType].Should().Contain(middlewareMock.Object);
     }
 
     [Fact]
-    public void GivenMiddleware_WhenAddAndMiddlewareCollectionContainsSpecifiedMiddleware_ThenThrowKeyException()
+    public void GivenTypeAndNullMiddleware_WhenAddIsCalled_ThenThrowsArgumentNullException()
     {
         // Arrange
-        var middleware = Mock.Of<IMiddleware>();
-
-        MiddlewareCollection sut = new();
-        sut.Add(middleware);
+        var collection = new MiddlewareCollection();
+        var ruleType = typeof(Mock<IRule>);
 
         // Act
-        new Action(() => sut.Add(middleware))
+        Action act = () => collection.Add(ruleType, null);
+
         // Assert
-        .Should().Throw<ArgumentException>();
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]
-    public void GivenMiddleware_WhenTryAddAndCollectionNotContainsSpecifiedMiddleware_ThenReturnsTrue()
+    public void GivenNullTypeAndMiddleware_WhenAddIsCalled_ThenThrowsArgumentNullException()
     {
         // Arrange
-        var middleware = Mock.Of<IMiddleware>();
-
-        MiddlewareCollection sut = new();
+        var collection = new MiddlewareCollection();
+        var middlewareMock = new Mock<IMiddleware>();
 
         // Act
-        sut.TryAdd(middleware)
+        Action act = () => collection.Add(null, middlewareMock.Object);
+
         // Assert
-        .Should().BeTrue();
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]
-    public void GivenMiddleware_WhenTryAddAndCollectionContainsSpecifiedMiddleware_ThenReturnsFalse()
+    public void GivenMiddleware_WhenGenericAddIsCalled_ThenAddsMiddleware()
     {
         // Arrange
-        var middleware = Mock.Of<IMiddleware>();
-
-        MiddlewareCollection sut = new();
-        sut.Add(middleware);
+        var collection = new MiddlewareCollection();
+        var middlewareMock = new Mock<IMiddleware>();
 
         // Act
-        sut.TryAdd(middleware)
+        collection.Add<IRule>(middlewareMock.Object);
+
         // Assert
-        .Should().BeFalse();
+        collection.Middleware[typeof(IRule)].Should().Contain(middlewareMock.Object);
     }
 
     [Fact]
-    public void GivenMiddleware_WhenGetAndCollectionContainsSpecifiedMiddleware_ThenReturnSpecifiedMiddleware()
+    public void GivenNullMiddleware_WhenGenericAddIsCalled_ThenThrowsArgumentNullException()
     {
         // Arrange
-        var middleware = Mock.Of<IMiddleware>();
-
-        MiddlewareCollection sut = new();
-        sut.Add(middleware);
+        var collection = new MiddlewareCollection();
 
         // Act
-        var result = sut.Get(middleware.GetType());
+        Action act = () => collection.Add<IRule>(null);
 
         // Assert
-        result.Should().Be(middleware);
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]
-    public void GivenMiddleware_WhenRemove_ThenMiddlewareCollectionNotContainSpecifiedMiddleware()
+    public void GivenTypeAndMiddleware_WhenRemoveIsCalled_ThenRemovesMiddleware()
     {
         // Arrange
-        var middleware = Mock.Of<IMiddleware>();
-
-        MiddlewareCollection sut = new();
-        sut.Add(middleware);
+        var collection = new MiddlewareCollection();
+        var middlewareMock = new Mock<IMiddleware>();
+        var ruleType = typeof(IRule);
+        collection.Add(ruleType, middlewareMock.Object);
 
         // Act
-        sut.Remove(middleware.GetType())
+        var result = collection.Remove(ruleType);
+
         // Assert
-        .Should().BeTrue();
+        result.Should().BeTrue();
+        collection.Middleware.Should().NotContainKey(ruleType);
     }
 
     [Fact]
-    public void GivenRuleAndMiddleware_WhenGetMiddlewareByRule_ThenReturnSpecifiedMiddleware()
+    public void GivenGenericTypeAndMiddleware_WhenRemoveIsCalled_ThenRemovesMiddleware()
     {
         // Arrange
-        var middleware = new AddLayerToDataCollection();
-
-        MiddlewareCollection sut = new();
-        sut.Add(middleware);
+        var collection = new MiddlewareCollection();
+        var middlewareMock = new Mock<IMiddleware>();
+        collection.Add<IRule>(middlewareMock.Object);
 
         // Act
-        var result = sut.GetMiddlewareByRule(new Mock<DependedRuleBase>("", Mock.Of<IRuleSettings>()).Object);
+        var result = collection.Remove<IRule>();
 
         // Assert
-        result.Should().Contain(middleware);
+        result.Should().BeTrue();
+        collection.Middleware.Should().NotContainKey(typeof(IRule));
     }
 
     [Fact]
-    public void GivenRuleWithNecessaryMiddleware_WhenGetMiddlewareByRule_ThenThrowNecessaryMiddlewareNotFoundException()
+    public void GivenRule_WhenGetIsCalled_ThenReturnsMiddleware()
     {
         // Arrange
-        MiddlewareCollection sut = new();
+        var collection = new MiddlewareCollection();
+        var middlewareMock = new Mock<IMiddleware>();
+        var ruleMock = new Mock<IRule>();
+        collection.Add(ruleMock.Object.GetType(), middlewareMock.Object);
 
         // Act
-        new Action(() => sut.GetMiddlewareByRule(new Mock<DependedRuleBase>("", Mock.Of<IRuleSettings>()).Object).ToList())
+        var result = collection.Get(ruleMock.Object);
+
         // Assert
-        .Should().Throw<NecessaryMiddlewareNotFoundException>();
+        result.Should().Contain(middlewareMock.Object);
+    }
+
+    [Fact]
+    public void GivenRule_WhenGetIsCalled_ThenThrowsKeyNotFoundException()
+    {
+        // Arrange
+        var collection = new MiddlewareCollection();
+        var ruleMock = new Mock<IRule>();
+
+        // Act
+        Action act = () => collection.Get(ruleMock.Object);
+
+        // Assert
+        act.Should().Throw<KeyNotFoundException>();
     }
 }

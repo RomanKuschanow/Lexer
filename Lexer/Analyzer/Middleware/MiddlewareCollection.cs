@@ -48,39 +48,6 @@ public class MiddlewareCollection : IMiddlewareCollection
     }
 
     /// <summary>
-    /// Tries to add middleware to the collection.
-    /// </summary>
-    /// <param name="ruleType">The binding rule type.</param>
-    /// <param name="middleware">The middleware to try to add.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="middleware"/> is null.</exception>
-    public bool TryAdd(Type ruleType, params IMiddleware[] middleware)
-    {
-        ArgumentNullException.ThrowIfNull(ruleType);
-        ArgumentNullException.ThrowIfNull(middleware);
-
-        if (_middleware.ContainsKey(ruleType))
-            return _middleware.TryAdd(middleware.GetType(), _middleware[ruleType].Concat(middleware));
-        else
-            return _middleware.TryAdd(ruleType, middleware);
-    }
-
-    /// <summary>
-    /// Tries to add middleware to the collection.
-    /// </summary>
-    /// <typeparam name="T">The rule type to removing.</typeparam>
-    /// <param name="middleware">The middleware to try to add.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="middleware"/> is null.</exception>
-    public bool TryAdd<T>(params IMiddleware[] middleware) where T : IRule
-    {
-        ArgumentNullException.ThrowIfNull(middleware);
-
-        if (_middleware.ContainsKey(typeof(T)))
-            return _middleware.TryAdd(middleware.GetType(), _middleware[typeof(T)].Concat(middleware));
-        else
-            return _middleware.TryAdd(typeof(T), middleware);
-    }
-
-    /// <summary>
     /// Removes middleware of the specified type from the collection.
     /// </summary>
     /// <param name="ruleType">The rule type to removing.</param>

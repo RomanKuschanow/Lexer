@@ -98,7 +98,7 @@ public class LexemeAnalyzer : IDisposable
             var layer = RawLayerFactory.CreateRawLayer(rule, rawLexemes);
 
             // Execute middleware for the rule
-            MiddlewareCollection.GetMiddlewareByRule(rule).ForEach(middleware => middleware.Execute(rule, input, layer, intermediateDataCollection));
+            MiddlewareCollection.Get(rule).ForEach(middleware => middleware.Execute(rule, input, layer, intermediateDataCollection));
 
             return layer;
         })
