@@ -51,6 +51,6 @@ public class RegexRule : RuleBase
     {
         var matches = Regex.Matches(input.Text);
 
-        return matches.Select(m => new RawLexeme(m.Index, m.Length, this));
+        return matches.Select(m => new RawLexeme(m.Index, m.Length, this, Type));
     }
 }

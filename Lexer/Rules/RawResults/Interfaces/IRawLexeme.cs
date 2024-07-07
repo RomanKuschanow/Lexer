@@ -17,4 +17,9 @@ public interface IRawLexeme
     /// Gets the rule associated with the lexeme.
     /// </summary>
     IRule Rule { get; }
+
+    /// <summary>
+    /// Gets the type of the lexeme.
+    /// </summary>
+    string Type { get; }
 }

@@ -131,7 +131,7 @@ public class LexemeAnalyzer : IDisposable
             // Add the selected lexeme to the list if it's not ignored
             if (!selectedLexeme.Rule.IsIgnored)
             {
-                lexemes.Add(new(selectedLexeme.Rule.Type, text.Substring(selectedLexeme.Start, selectedLexeme.Length)));
+                lexemes.Add(new(selectedLexeme.Type, text.Substring(selectedLexeme.Start, selectedLexeme.Length), selectedLexeme.Start, selectedLexeme.Length));
             }
 
             // If there is a gap between the current startIndex and the start of the selected lexeme, record an error

@@ -45,22 +45,23 @@ public class DependedRegexRuleFixtures
     public void GivenValidInput_WhenFindingLexemes_ThenReturnsExpectedLexemes()
     {
         // Arrange
+        string type = "depended";
         string pattern = @"<rule1>\s<rule2>";
-        var sut = new DependedRegexRule(pattern, "depended");
+        var sut = new DependedRegexRule(pattern, type);
 
         var mockRule1 = new Mock<IRule>();
         var mockRule2 = new Mock<IRule>();
         var analyzedLayerMock1 = new Mock<IRawLayer>();
         analyzedLayerMock1.Setup(x => x.RawLexemes).Returns(new List<RawLexeme>
         {
-            new(0, 4, mockRule1.Object), // test
-            new(9, 3, mockRule2.Object) // bar
+            new(0, 4, mockRule1.Object, type), // test
+            new(9, 3, mockRule2.Object, type) // bar
         });
         var analyzedLayerMock2 = new Mock<IRawLayer>();
         analyzedLayerMock2.Setup(x => x.RawLexemes).Returns(new List<RawLexeme>
         {
-            new(5, 3, mockRule1.Object),  // foo
-            new(13, 3, mockRule2.Object) // baz
+            new(5, 3, mockRule1.Object, type),  // foo
+            new(13, 3, mockRule2.Object, type) // baz
         });
 
         sut.AddDependency(mockRule1.Object, "rule1");
@@ -87,22 +88,23 @@ public class DependedRegexRuleFixtures
     public void GivenValidInput_WhenFindingLexemesWithAlwaysSameData_ThenReturnsExpectedLexemes()
     {
         // Arrange
+        string type = "depended";
         string pattern = @"<rule1>\s<rule2>\s<rule1>";
-        var sut = new DependedRegexRule(pattern, "depended", new(DependedRuleOptions.AlwaysSameData));
+        var sut = new DependedRegexRule(pattern, type, new(DependedRuleOptions.AlwaysSameData));
 
         var mockRule1 = new Mock<IRule>();
         var mockRule2 = new Mock<IRule>();
         var analyzedLayerMock1 = new Mock<IRawLayer>();
         analyzedLayerMock1.Setup(x => x.RawLexemes).Returns(new List<RawLexeme>
         {
-            new(0, 4, mockRule1.Object), // test
-            new(23, 5, mockRule1.Object), // _test
+            new(0, 4, mockRule1.Object, type), // test
+            new(23, 5, mockRule1.Object, type), // _test
         });
         var analyzedLayerMock2 = new Mock<IRawLayer>();
         analyzedLayerMock2.Setup(x => x.RawLexemes).Returns(new List<RawLexeme>
         {
-            new(5, 3, mockRule1.Object),  // foo
-            new(19, 3, mockRule1.Object)  // foo
+            new(5, 3, mockRule1.Object, type),  // foo
+            new(19, 3, mockRule1.Object, type)  // foo
         });
 
         sut.AddDependency(mockRule1.Object, "rule1");
@@ -128,15 +130,16 @@ public class DependedRegexRuleFixtures
     public void GivenValidInput_WhenFindingLexemesWithoutAlwaysSameData_ThenReturnsExpectedLexemes()
     {
         // Arrange
+        string type = "depended";
         string pattern = @"<rule1>\s<rule1>";
-        var sut = new DependedRegexRule(pattern, "depended");
+        var sut = new DependedRegexRule(pattern, type);
 
         var mockRule1 = new Mock<IRule>();
         var analyzedLayerMock = new Mock<IRawLayer>();
         analyzedLayerMock.Setup(x => x.RawLexemes).Returns(new List<RawLexeme>
         {
-            new(0, 4, mockRule1.Object), // test
-            new(5, 3, mockRule1.Object)  // foo
+            new(0, 4, mockRule1.Object, type), // test
+            new(5, 3, mockRule1.Object, type)  // foo
         });
 
         sut.AddDependency(mockRule1.Object, "rule1");

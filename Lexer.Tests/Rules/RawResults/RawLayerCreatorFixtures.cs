@@ -42,17 +42,17 @@ public class RawLayerCreatorFixtures
         */
         List<IRawLexeme> lexemes = new()
         {
-            new RawLexeme(0, 3, rule),
-            new RawLexeme(1, 4, rule),
-            new RawLexeme(4, 3, rule),
-            new RawLexeme(8, 3, rule),
-            new RawLexeme(8, 2, rule),
+            new RawLexeme(0, 3, rule, ""),
+            new RawLexeme(1, 4, rule, ""),
+            new RawLexeme(4, 3, rule, ""),
+            new RawLexeme(8, 3, rule, ""),
+            new RawLexeme(8, 2, rule, ""),
         };
         List<IRawLexeme> expectedLexemes = new()
         {
-            new RawLexeme(0, 3, rule),
-            new RawLexeme(4, 3, rule),
-            new RawLexeme(8, selectShorter ? 2 : 3, rule),
+            new RawLexeme(0, 3, rule, ""),
+            new RawLexeme(4, 3, rule, ""),
+            new RawLexeme(8, selectShorter ? 2 : 3, rule, ""),
         };
 
         RawLayerCreator sut = new(selectShorter);

@@ -71,7 +71,7 @@ public class DelimiterRule : RuleBase
             if (!endMatch.Success)
                 break;
 
-            lexemes.Add(new(startMatch.Index, endMatch.Index + endMatch.Length - startMatch.Index, this));
+            lexemes.Add(new(startMatch.Index, endMatch.Index + endMatch.Length - startMatch.Index, this, Type));
 
             index = startMatch.Index + 1;
         }
