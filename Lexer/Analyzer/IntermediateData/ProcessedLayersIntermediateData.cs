@@ -1,5 +1,6 @@
 ﻿#nullable disable
 using Lexer.Analyzer.Interfaces;
+using Lexer.Analyzer.IntermediateData.Interfaces;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
 using Lexer.Rules.RawResults.Interfaces;

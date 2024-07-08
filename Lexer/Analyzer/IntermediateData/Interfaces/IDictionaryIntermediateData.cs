@@ -1,4 +1,4 @@
-﻿namespace Lexer.Analyzer.Interfaces;
+﻿namespace Lexer.Analyzer.IntermediateData.Interfaces;
 public interface IDictionaryIntermediateData<TKey, TValue> : IIntermediateData<IDictionary<TKey, TValue>>
 {
     /// <summary>

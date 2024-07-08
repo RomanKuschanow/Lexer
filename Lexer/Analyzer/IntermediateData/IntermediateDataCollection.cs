@@ -1,5 +1,6 @@
 ﻿#nullable disable
 using Lexer.Analyzer.Interfaces;
+using Lexer.Analyzer.IntermediateData.Interfaces;
 
 namespace Lexer.Analyzer.IntermediateData;
 public class IntermediateDataCollection : IIntermediateDataCollection

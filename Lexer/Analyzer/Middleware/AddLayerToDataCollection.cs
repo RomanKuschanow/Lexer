@@ -1,5 +1,5 @@
-﻿using Lexer.Analyzer.Interfaces;
-using Lexer.Analyzer.IntermediateData;
+﻿using Lexer.Analyzer.IntermediateData;
+using Lexer.Analyzer.IntermediateData.Interfaces;
 using Lexer.Analyzer.Middleware.Interface;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults.Interfaces;

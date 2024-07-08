@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
-using Lexer.Analyzer.Interfaces;
 using Lexer.Analyzer.IntermediateData;
+using Lexer.Analyzer.IntermediateData.Interfaces;
 using Lexer.Rules.RuleInputs;
 using Moq;
 

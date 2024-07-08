@@ -1,4 +1,4 @@
-﻿namespace Lexer.Analyzer.Interfaces;
+﻿namespace Lexer.Analyzer.IntermediateData.Interfaces;
 public interface IIntermediateDataCollection
 {
     public void Add<T>(T data) where T : IIntermediateData;
