@@ -26,9 +26,9 @@ public class IntermediateDataCollection : IIntermediateDataCollection
     /// <typeparam name="T">The type of the data.</typeparam>
     /// <param name="data">The data to try to add.</param>
     /// <exception cref="InvalidCastException">Thrown when the data cannot be converted to <see cref="IIntermediateData"/>.</exception>
-    public void TryAdd<T>(T data) where T : IIntermediateData
+    public bool TryAdd<T>(T data) where T : IIntermediateData
     {
-        _dataDict.TryAdd(data.GetType(), data);
+        return _dataDict.TryAdd(data.GetType(), data);
     }
 
     /// <summary>
