@@ -1,7 +1,5 @@
-﻿using FluentAssertions;
-using Lexer.Rules;
+﻿using Lexer.Rules;
 using Lexer.Rules.Interfaces;
-using Moq;
 
 namespace Lexer.Tests.Rules;
 public class RuleSetFixtures

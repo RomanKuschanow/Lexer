@@ -1,8 +1,6 @@
-﻿using FluentAssertions;
-using Lexer.Analyzer.IntermediateData;
+﻿using Lexer.Analyzer.IntermediateData;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults.Interfaces;
-using Moq;
 using System.Reflection;
 
 namespace Lexer.Tests.Analyzer.IntermediateData;

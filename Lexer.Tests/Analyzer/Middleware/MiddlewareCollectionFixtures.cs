@@ -1,8 +1,6 @@
-﻿using FluentAssertions;
-using Lexer.Analyzer.Middleware;
+﻿using Lexer.Analyzer.Middleware;
 using Lexer.Analyzer.Middleware.Interface;
 using Lexer.Rules.Interfaces;
-using Moq;
 
 namespace Lexer.Tests.Analyzer.Middleware;
 public class MiddlewareCollectionFixtures

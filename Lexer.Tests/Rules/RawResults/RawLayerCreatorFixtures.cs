@@ -1,8 +1,6 @@
-﻿using FluentAssertions;
-using Lexer.Rules.Interfaces;
+﻿using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
 using Lexer.Rules.RawResults.Interfaces;
-using Moq;
 
 namespace Lexer.Tests.Rules.RawResults;
 public class RawLayerCreatorFixtures

@@ -1,10 +1,8 @@
-﻿using FluentAssertions;
-using Lexer.Rules.Depended;
+﻿using Lexer.Rules.Depended;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
 using Lexer.Rules.RawResults.Interfaces;
 using Lexer.Rules.RuleInputs.Interfaces;
-using Moq;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 

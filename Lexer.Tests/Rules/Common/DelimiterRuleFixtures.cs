@@ -1,7 +1,5 @@
-﻿using FluentAssertions;
-using Lexer.Rules.Common;
+﻿using Lexer.Rules.Common;
 using Lexer.Rules.RuleInputs.Interfaces;
-using Moq;
 using System.Text.RegularExpressions;
 
 namespace Lexer.Tests.Rules.Common;

@@ -1,11 +1,9 @@
-﻿using FluentAssertions;
-using Lexer.Analyzer.IntermediateData;
+﻿using Lexer.Analyzer.IntermediateData;
 using Lexer.Analyzer.IntermediateData.Interfaces;
 using Lexer.Rules.Common;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RuleInputs;
 using Lexer.Rules.RuleInputs.Interfaces;
-using Moq;
 
 namespace Lexer.Tests.Rules.RuleInputs;
 public class RuleInputFactoryFixtures

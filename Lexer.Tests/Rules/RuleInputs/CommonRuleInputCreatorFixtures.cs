@@ -1,8 +1,6 @@
-﻿using FluentAssertions;
-using Lexer.Analyzer.IntermediateData;
+﻿using Lexer.Analyzer.IntermediateData;
 using Lexer.Analyzer.IntermediateData.Interfaces;
 using Lexer.Rules.RuleInputs;
-using Moq;
 
 namespace Lexer.Tests.Rules.RuleInputs;
 public class CommonRuleInputCreatorFixtures

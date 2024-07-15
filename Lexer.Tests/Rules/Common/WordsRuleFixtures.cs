@@ -1,7 +1,5 @@
-﻿using FluentAssertions;
-using Lexer.Rules.Common;
+﻿using Lexer.Rules.Common;
 using Lexer.Rules.RuleInputs.Interfaces;
-using Moq;
 
 namespace Lexer.Tests.Rules.Common;
 public class WordsRuleFixtures

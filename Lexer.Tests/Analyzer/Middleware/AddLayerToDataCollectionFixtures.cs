@@ -1,11 +1,9 @@
-﻿using FluentAssertions;
-using Lexer.Analyzer.IntermediateData;
+﻿using Lexer.Analyzer.IntermediateData;
 using Lexer.Analyzer.IntermediateData.Interfaces;
 using Lexer.Analyzer.Middleware;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults.Interfaces;
 using Lexer.Rules.RuleInputs.Interfaces;
-using Moq;
 
 namespace Lexer.Tests.Analyzer.Middleware;
 public class AddLayerToDataCollectionFixtures
