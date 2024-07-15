@@ -1,8 +1,6 @@
 ﻿using FluentAssertions;
 using Lexer.Analyzer.Middleware;
 using Lexer.Analyzer.Middleware.Interface;
-using Lexer.Exceptions;
-using Lexer.Rules.Depended;
 using Lexer.Rules.Interfaces;
 using Moq;
 

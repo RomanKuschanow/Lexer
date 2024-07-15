@@ -1,6 +1,4 @@
-﻿using Lexer.Attributes;
-using Lexer.Rules.Common;
-using Lexer.Rules.RuleInputs.Interfaces;
+﻿using Lexer.Rules.RuleInputs.Interfaces;
 
 namespace Lexer.Rules.RuleInputs;
 public class CommonRuleInput : IRuleInput

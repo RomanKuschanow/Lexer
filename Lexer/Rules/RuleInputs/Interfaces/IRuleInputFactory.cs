@@ -1,5 +1,4 @@
-﻿using Lexer.Analyzer.IntermediateData;
-using Lexer.Analyzer.IntermediateData.Interfaces;
+﻿using Lexer.Analyzer.IntermediateData.Interfaces;
 using Lexer.Rules.Interfaces;
 
 namespace Lexer.Rules.RuleInputs.Interfaces;

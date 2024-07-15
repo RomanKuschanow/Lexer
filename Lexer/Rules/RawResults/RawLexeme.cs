@@ -4,7 +4,7 @@ using Lexer.Rules.RawResults.Interfaces;
 namespace Lexer.Rules.RawResults;
 
 public record RawLexeme : IRawLexeme
-{    
+{
     public int Start { get; }
 
     public int Length { get; }

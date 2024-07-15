@@ -1,15 +1,11 @@
 ﻿#nullable disable
 using Lexer.Analyzer.IntermediateData;
-using Lexer.Analyzer.Middleware;
 using Lexer.Analyzer.Middleware.Interface;
-using Lexer.Attributes;
 using Lexer.Exceptions;
 using Lexer.Extensions;
-using Lexer.Rules;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
 using Lexer.Rules.RawResults.Interfaces;
-using Lexer.Rules.RuleInputs;
 using Lexer.Rules.RuleInputs.Interfaces;
 using System.Data;
 

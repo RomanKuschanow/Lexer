@@ -1,12 +1,4 @@
-﻿using FluentAssertions;
-using Lexer.Analyzer;
-using Lexer.Rules;
-using Lexer.Rules.Interfaces;
-using Lexer.Rules.RawResults;
-using Lexer.Rules.RuleInputs.Interfaces;
-using Moq;
-
-namespace Lexer.Tests.Analyzer;
+﻿namespace Lexer.Tests.Analyzer;
 //public class LexemeAnalyzerFixtures
 //{
 //    [Fact]

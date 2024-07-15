@@ -1,5 +1,4 @@
-﻿using Lexer.Analyzer.Middleware.Interface;
-using Lexer.Rules.Interfaces;
+﻿using Lexer.Rules.Interfaces;
 
 namespace Lexer.Exceptions;
 public class NecessaryMiddlewareNotFoundException : Exception

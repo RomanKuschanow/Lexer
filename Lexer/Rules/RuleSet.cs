@@ -1,7 +1,5 @@
 ﻿using Lexer.Extensions;
 using Lexer.Rules.Interfaces;
-using Lexer.Rules.RuleInputs.Interfaces;
-using System.Collections;
 
 namespace Lexer.Rules;
 public class RuleSet : IRuleSet

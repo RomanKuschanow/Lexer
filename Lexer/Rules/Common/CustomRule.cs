@@ -1,7 +1,6 @@
 ﻿#nullable disable
 
 using Lexer.Rules.Interfaces;
-using Lexer.Rules.RawResults;
 using Lexer.Rules.RawResults.Interfaces;
 using Lexer.Rules.RuleInputs.Interfaces;
 

@@ -1,10 +1,7 @@
 ﻿#nullable disable
-using Lexer.Analyzer.Interfaces;
 using Lexer.Analyzer.IntermediateData.Interfaces;
 using Lexer.Rules.Interfaces;
-using Lexer.Rules.RawResults;
 using Lexer.Rules.RawResults.Interfaces;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Lexer.Analyzer.IntermediateData;
 public class ProcessedLayersIntermediateData : IDictionaryIntermediateData<IRule, IRawLayer>

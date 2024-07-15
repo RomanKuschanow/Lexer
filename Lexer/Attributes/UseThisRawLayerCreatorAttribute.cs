@@ -1,5 +1,4 @@
 ﻿using Lexer.Rules.RawResults.Interfaces;
-using Lexer.Rules.RuleInputs.Interfaces;
 
 namespace Lexer.Attributes;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]

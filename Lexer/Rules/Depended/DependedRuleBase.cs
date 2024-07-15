@@ -1,5 +1,4 @@
 ﻿#nullable disable
-using Lexer.Analyzer.Middleware;
 using Lexer.Attributes;
 using Lexer.Rules.Common;
 using Lexer.Rules.Interfaces;
