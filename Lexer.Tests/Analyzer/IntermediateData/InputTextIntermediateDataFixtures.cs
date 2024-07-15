@@ -5,7 +5,6 @@ using System.Reflection;
 namespace Lexer.Tests.Analyzer.IntermediateData;
 public class InputTextIntermediateDataFixtures
 {
-
     [Fact]
     public void GivenString_WhenCreatingNewInstance_ThenTextPropertyHasSpecifiedValue()
     {
