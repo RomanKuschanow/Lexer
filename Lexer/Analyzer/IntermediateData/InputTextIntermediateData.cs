@@ -9,6 +9,8 @@ public class InputTextIntermediateData : IIntermediateData<string>
     /// </summary>
     private string Text { get; set; }
 
+    public InputTextIntermediateData() : this("") { }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="InputTextIntermediateData"/> class with the specified text.
     /// </summary>

@@ -24,7 +24,7 @@ public class InputTextIntermediateDataFixtures
     {
         // Arrange
         string str = "test";
-        InputTextIntermediateData sut = new("");
+        InputTextIntermediateData sut = new();
 
         // Act
         sut.SetData(str);
