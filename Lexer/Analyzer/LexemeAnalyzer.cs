@@ -70,7 +70,7 @@ public class LexemeAnalyzer : IDisposable
     /// <param name="ct">The cancellation token to use for canceling the operation.</param>
     /// <returns>The result of the analysis.</returns>
     /// <exception cref="NecessaryAttributeNotFoundException">Thrown when a necessary attribute is not found.</exception>
-    public AnalyzeResult Analyze(string text, int maxDegreeOfParallelism = 10, CancellationToken ct = default)
+    public AnalyzeResult Analyze(string text)
     {
         Dictionary<IRule, RawLayer> layersDict = [];
         IntermediateDataCollection intermediateDataCollection = new();
@@ -78,10 +78,6 @@ public class LexemeAnalyzer : IDisposable
 
         // Analyzing rules in parallel
         var layers = RuleSet.Rules
-        .AsParallel()
-        .WithDegreeOfParallelism(maxDegreeOfParallelism)
-        .WithCancellation(ct)
-        .AsOrdered()
         .Select(rule =>
         {
             // Create input using the rule input factory
