@@ -19,7 +19,7 @@ public abstract class RuleBase : IRule
         set => _type = value ?? throw new ArgumentNullException(nameof(value));
     }
     public bool IsIgnored { get; set; }
-    public bool IsOnlyForDependentRules { get; set; }
+    public bool IsOnlyForProcessing { get; set; }
     public bool IsEnabled { get; set; }
 
     protected RuleBase(string type, IRuleSettings ruleSettings)
@@ -28,7 +28,7 @@ public abstract class RuleBase : IRule
 
         Type = type;
         IsIgnored = ruleSettings.IsIgnored;
-        IsOnlyForDependentRules = ruleSettings.IsOnlyForDependentRules;
+        IsOnlyForProcessing = ruleSettings.IsOnlyForProcessing;
         IsEnabled = ruleSettings.IsEnabled;
     }
 

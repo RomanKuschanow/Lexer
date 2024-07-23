@@ -76,7 +76,7 @@ public class LexemeAnalyzer : IDisposable
         IntermediateDataCollection intermediateDataCollection = new();
         intermediateDataCollection.Add(new InputTextIntermediateData(text));
 
-        // Analyzing rules in parallel
+        // Analyzing rules
         var layers = RuleSet.Rules
         .Select(rule =>
         {
@@ -94,7 +94,7 @@ public class LexemeAnalyzer : IDisposable
 
             return layer;
         })
-        .Where(layer => !layer.Rule.IsOnlyForDependentRules);
+        .Where(layer => !layer.Rule.IsOnlyForProcessing);
 
         List<Lexeme> lexemes = [];
         List<UnrecognizedPart> errors = [];

@@ -4,7 +4,7 @@ public interface IRuleSettings
     /// <summary>
     /// The rule will be applied only to dependent rules. For everything else, the effect of this parameter is similar to the <see cref="IsEnabled"/>
     /// </summary>
-    bool IsOnlyForDependentRules { get; }
+    bool IsOnlyForProcessing { get; }
 
     /// <summary>
     /// Determines whether the lexemes found by this rule should be ignored in the output.
