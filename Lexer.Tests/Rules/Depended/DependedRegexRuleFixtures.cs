@@ -24,7 +24,7 @@ public class DependedRegexRuleFixtures
         sut.RuleOptions.Should().Be(DependedRuleOptions.None);
         sut.Type.Should().Be("depended");
         sut.IsIgnored.Should().BeFalse();
-        sut.IsOnlyForDependentRules.Should().BeFalse();
+        sut.IsOnlyForProcessing.Should().BeFalse();
         sut.IsEnabled.Should().BeTrue();
     }
 

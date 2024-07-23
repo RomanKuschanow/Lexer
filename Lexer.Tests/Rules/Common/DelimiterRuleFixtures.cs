@@ -18,7 +18,7 @@ public class DelimiterRuleFixtures
         // Assert
         sut.Type.Should().Be("delimiter");
         sut.IsIgnored.Should().BeFalse();
-        sut.IsOnlyForDependentRules.Should().BeFalse();
+        sut.IsOnlyForProcessing.Should().BeFalse();
         sut.IsEnabled.Should().BeTrue();
         sut.StartDelimiter.Should().Be(startDelimiter);
         sut.EndDelimiter.Should().Be(endDelimiter);

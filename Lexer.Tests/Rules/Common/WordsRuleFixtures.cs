@@ -16,7 +16,7 @@ public class WordsRuleFixtures
         // Assert
         sut.Type.Should().Be("word");
         sut.IsIgnored.Should().BeFalse();
-        sut.IsOnlyForDependentRules.Should().BeFalse();
+        sut.IsOnlyForProcessing.Should().BeFalse();
         sut.IsEnabled.Should().BeTrue();
         sut.Words.Should().BeEquivalentTo(words);
     }

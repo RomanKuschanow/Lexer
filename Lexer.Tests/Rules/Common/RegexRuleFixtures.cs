@@ -17,7 +17,7 @@ public class RegexRuleFixtures
         // Assert
         sut.Type.Should().Be("word");
         sut.IsIgnored.Should().BeFalse();
-        sut.IsOnlyForDependentRules.Should().BeFalse();
+        sut.IsOnlyForProcessing.Should().BeFalse();
         sut.IsEnabled.Should().BeTrue();
         sut.Regex.Should().Be(regex);
     }
