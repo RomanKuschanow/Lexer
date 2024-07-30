@@ -1,95 +1,170 @@
 ﻿#nullable disable
-using Lexer.Rules;
+using Lexer.Analyzer.IntermediateData;
+using Lexer.Analyzer.Middleware.Interface;
+using Lexer.Exceptions;
+using Lexer.Extensions;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.Visitors;
+using Lexer.Rules.RawResults.Interfaces;
+using Lexer.Rules.RuleInputs.Interfaces;
 using System.Data;
 
 namespace Lexer.Analyzer;
-public class LexemeAnalyzer
+public class LexemeAnalyzer : IDisposable
 {
-    public RuleSet Rules { get; set; }
+    /// <summary>
+    /// Gets the rule set for the analyzer.
+    /// </summary>
+    private IRuleSet RuleSet { get; init; }
+    /// <summary>
+    /// Gets the middleware collection for the analyzer.
+    /// </summary>
+    private IMiddlewareCollection MiddlewareCollection { get; init; }
+    /// <summary>
+    /// Gets the rule input factory for the analyzer.
+    /// </summary>
+    private IRuleInputFactory RuleInputFactory { get; init; }
+    /// <summary>
+    /// Gets the raw layer factory for the analyzer.
+    /// </summary>
+    private IRawLayerFactory RawLayerFactory { get; init; }
 
-    public LexemeAnalyzerOptions Options { get; set; }
+    /// <summary>
+    /// Gets the rules from the rule set.
+    /// </summary>
+    public IEnumerable<IRule> Rules => RuleSet.Rules;
+    /// <summary>
+    /// Gets the middleware from the middleware collection.
+    /// </summary>
+    public IDictionary<Type, IEnumerable<IMiddleware>> Middleware => MiddlewareCollection.Middleware;
+    /// <summary>
+    /// Gets the rule input creators from the rule input factory.
+    /// </summary>
+    public IEnumerable<IRuleInputCreator> RuleInputCreators => RuleInputFactory.RuleInputCreators;
+    /// <summary>
+    /// Gets the raw layer creators from the raw layer factory.
+    /// </summary>
+    public IEnumerable<IRawLayerCreator> RawLayerCreators => RawLayerFactory.RawLayerCreators;
 
-    public LexemeAnalyzer(RuleSet rules = null!, LexemeAnalyzerOptions options = null!)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LexemeAnalyzer"/> class.
+    /// </summary>
+    /// <param name="ruleSet">The rule set to use.</param>
+    /// <param name="middleware">The middleware collection to use.</param>
+    /// <param name="ruleInputFactory">The rule input factory to use.</param>
+    /// <param name="rawLayerFactory">The raw layer factory to use.</param>
+    /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
+    public LexemeAnalyzer(IRuleSet ruleSet, IMiddlewareCollection middleware, IRuleInputFactory ruleInputFactory, IRawLayerFactory rawLayerFactory)
     {
-        Rules = rules ?? new();
-        Options = options ?? new();
+        RuleSet = ruleSet ?? throw new ArgumentNullException(nameof(ruleSet));
+        MiddlewareCollection = middleware ?? throw new ArgumentNullException(nameof(middleware));
+        RuleInputFactory = ruleInputFactory ?? throw new ArgumentNullException(nameof(ruleInputFactory));
+        RawLayerFactory = rawLayerFactory ?? throw new ArgumentNullException(nameof(rawLayerFactory));
     }
 
-    public async Task<AnalyzeResult> Analyze(string text, int maxDegreeOfParallelism = 10, CancellationToken ct = default)
+    /// <summary>
+    /// Analyzes the given text using the specified rules, middleware, and factories.
+    /// </summary>
+    /// <param name="text">The text to analyze.</param>
+    /// <param name="maxDegreeOfParallelism">The maximum degree of parallelism to use.</param>
+    /// <param name="ct">The cancellation token to use for canceling the operation.</param>
+    /// <returns>The result of the analysis.</returns>
+    /// <exception cref="NecessaryAttributeNotFoundException">Thrown when a necessary attribute is not found.</exception>
+    public AnalyzeResult Analyze(string text)
     {
-        await Rules.PrepareRules();
+        Dictionary<IRule, RawLayer> layersDict = [];
+        IntermediateDataCollection intermediateDataCollection = new();
+        intermediateDataCollection.Add(new InputTextIntermediateData(text));
 
-        using var semaphore = new SemaphoreSlim(maxDegreeOfParallelism);
-
-        Dictionary<IRule, AnalyzedLayer> layersDict = new();
-        VisitorInput visitorInput = new(text, layersDict);
-        Visitor visitor = new();
-
-        var tasks = Rules.Select(async r =>
+        // Analyzing rules
+        var layers = RuleSet.Rules
+        .Select(rule =>
         {
-            await semaphore.WaitAsync(ct);
-            try
-            {
-                var input = r.Accept(visitor, visitorInput);
+            // Create input using the rule input factory
+            var input = RuleInputFactory.CreateInput(rule, intermediateDataCollection);
 
-                var result = await r.FindLexemes(input, ct);
-                layersDict.Add(r, result);
+            // Find lexemes using the rule
+            var rawLexemes = rule.FindLexemes(input);
 
-                return result;
-            }
-            finally
-            {
-                semaphore.Release();
-            }
-        });
+            // Create raw layer using the raw layer factory
+            var layer = RawLayerFactory.CreateRawLayer(rule, rawLexemes);
 
-        var layers = await Task.WhenAll(tasks);
+            // Execute middleware for the rule
+            MiddlewareCollection.Get(rule).ForEach(middleware => middleware.Execute(rule, input, layer, intermediateDataCollection));
 
-        List<Lexeme> lexemes = new();
-        List<UnrecognizedPart> errors = new();
+            return layer;
+        })
+        .Where(layer => !layer.Rule.IsOnlyForProcessing);
 
-        await Task.Run(() =>
+        List<Lexeme> lexemes = [];
+        List<UnrecognizedPart> errors = [];
+
+        int startIndex = 0;
+        IEnumerable<IRawLexeme> candidates;
+
+        // Process lexemes and collect errors
+        while ((candidates = layers.Select(layer => layer.RawLexemes.FirstOrDefault(lexeme => lexeme.Start >= startIndex))
+                                   .Where(l => l is not null)
+                                   .Cast<RawLexeme>())
+                                   .Any())
         {
-            int startIndex = 0;
-            IEnumerable<RawLexeme> candidates;
-            while ((candidates = layers.Select(l => l.FirstOrDefault(r => r.Start >= startIndex))
-                                       .Where(l => l is not null && !l.Rule.IsOnlyForDependentRules).Cast<RawLexeme>()).Any())
+            // Select the first candidate lexeme
+            var selectedLexeme = candidates.First();
+
+            // Find the lexeme with the smallest start index
+            foreach (var lexeme in candidates.Skip(1))
             {
-                var selectedLexeme = candidates.First();
-                foreach (var lexeme in candidates.Skip(1))
-                    if (lexeme.Start < selectedLexeme.Start)
-                        selectedLexeme = lexeme;
-
-                if (!selectedLexeme.Rule.IsIgnored)
-                    lexemes.Add(new(selectedLexeme.Rule.Type, text.Substring(selectedLexeme.Start, selectedLexeme.Length)));
-
-                if (selectedLexeme.Start > startIndex)
+                if (lexeme.Start < selectedLexeme.Start)
                 {
-                    var (ln, ch) = GetLineAndCharacter(startIndex);
-                    errors.Add(new(ln, ch, selectedLexeme.Start - startIndex));
+                    selectedLexeme = lexeme;
                 }
-
-                startIndex = selectedLexeme.Start + selectedLexeme.Length;
             }
 
-            if (startIndex < text.Length)
+            // Add the selected lexeme to the list if it's not ignored
+            if (!selectedLexeme.Rule.IsIgnored)
+            {
+                lexemes.Add(new(selectedLexeme.Type, text.Substring(selectedLexeme.Start, selectedLexeme.Length), selectedLexeme.Start, selectedLexeme.Length));
+            }
+
+            // If there is a gap between the current startIndex and the start of the selected lexeme, record an error
+            if (selectedLexeme.Start > startIndex)
             {
                 var (ln, ch) = GetLineAndCharacter(startIndex);
-                errors.Add(new(ln, ch, text.Length - startIndex));
+                errors.Add(new(ln, ch, selectedLexeme.Start - startIndex));
             }
-        }, ct);
+
+            // Update startIndex to the end of the selected lexeme
+            startIndex = selectedLexeme.Start + selectedLexeme.Length;
+        }
+
+
+        if (startIndex < text.Length)
+        {
+            var (ln, ch) = GetLineAndCharacter(startIndex);
+            errors.Add(new(ln, ch, text.Length - startIndex));
+        }
 
         return new(lexemes, errors);
 
+        // Get line and character position from index
         (int, int) GetLineAndCharacter(int index)
         {
-            int ln = text[..index].Where(ch => ch == '\n').Count() + 1;
+            int ln = text[..index].Where(ch => ch == '\n').Count();
             int lastIndexOfNewLine = text[..(index + 1)].LastIndexOf('\n');
-            int ch = index - (lastIndexOfNewLine > -1 ? lastIndexOfNewLine : 0) + 1;
+            int ch = index - (lastIndexOfNewLine > -1 ? lastIndexOfNewLine : 0);
             return (ln, ch);
         }
+    }
+
+    /// <summary>
+    /// Disposes the lexeme analyzer and its resources.
+    /// </summary>
+    public void Dispose()
+    {
+        RuleSet.Dispose();
+        MiddlewareCollection.Dispose();
+        RuleInputFactory.Dispose();
+        RawLayerFactory.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

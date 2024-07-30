@@ -1,10 +1,14 @@
 ﻿#nullable disable
-using Lexer;
+using Lexer.Attributes;
 using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
-using Lexer.Rules.Visitors;
+using Lexer.Rules.RawResults.Interfaces;
+using Lexer.Rules.RuleInputs;
+using Lexer.Rules.RuleInputs.Interfaces;
 
 namespace Lexer.Rules.Common;
+[UseThisRawLayerCreator(typeof(RawLayerCreator))]
+[UseThisRuleInputCreator(typeof(CommonRuleInputCreator))]
 public abstract class RuleBase : IRule
 {
     private string _type;
@@ -15,20 +19,18 @@ public abstract class RuleBase : IRule
         set => _type = value ?? throw new ArgumentNullException(nameof(value));
     }
     public bool IsIgnored { get; set; }
-    public bool IsOnlyForDependentRules { get; set; }
+    public bool IsOnlyForProcessing { get; set; }
     public bool IsEnabled { get; set; }
 
-    protected RuleBase(IRuleSettings ruleSettings)
+    protected RuleBase(string type, IRuleSettings ruleSettings)
     {
         ArgumentNullException.ThrowIfNull(ruleSettings);
 
-        Type = ruleSettings.Type;
+        Type = type;
         IsIgnored = ruleSettings.IsIgnored;
-        IsOnlyForDependentRules = ruleSettings.IsOnlyForDependentRules;
+        IsOnlyForProcessing = ruleSettings.IsOnlyForProcessing;
         IsEnabled = ruleSettings.IsEnabled;
     }
 
-    public abstract Task<AnalyzedLayer> FindLexemes(IRuleInput input, CancellationToken ct);
-
-    public IRuleInput Accept(IVisitor visitor, VisitorInput visitorInput) => visitor.Rule(visitorInput);
+    public abstract IEnumerable<IRawLexeme> FindLexemes(IRuleInput input);
 }

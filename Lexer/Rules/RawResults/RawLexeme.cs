@@ -1,26 +1,17 @@
 ﻿using Lexer.Rules.Interfaces;
+using Lexer.Rules.RawResults.Interfaces;
 
 namespace Lexer.Rules.RawResults;
-/// <summary>
-/// Represents a raw lexeme identified in the text before final processing.
-/// This includes its position, length, and the rule used to identify it.
-/// </summary>
-public record RawLexeme
+
+public record RawLexeme : IRawLexeme
 {
-    /// <summary>
-    /// Gets the starting position of the lexeme within the text.
-    /// </summary>
     public int Start { get; }
 
-    /// <summary>
-    /// Gets the length of the lexeme within the text.
-    /// </summary>
     public int Length { get; }
 
-    /// <summary>
-    /// Gets the rule used to identify this lexeme.
-    /// </summary>
     public IRule Rule { get; }
+
+    public string Type { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RawLexeme"/> record.
@@ -28,11 +19,12 @@ public record RawLexeme
     /// <param name="start">The starting position of the lexeme within the text.</param>
     /// <param name="length">The length of the lexeme within the text.</param>
     /// <param name="rule">The rule used to identify this lexeme.</param>
-    public RawLexeme(int start, int length, IRule rule)
+    public RawLexeme(int start, int length, IRule rule, string type)
     {
         Start = start;
         Length = length;
         Rule = rule;
+        Type = type;
     }
 }
 

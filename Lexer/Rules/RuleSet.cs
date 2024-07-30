@@ -1,69 +1,88 @@
-﻿using Lexer.Rules.Interfaces;
-using System.Collections;
+﻿using Lexer.Extensions;
+using Lexer.Rules.Interfaces;
 
 namespace Lexer.Rules;
-public class RuleSet : IEnumerable<IRule>
+public class RuleSet : IRuleSet
 {
+    /// <summary>
+    /// List to store rules.
+    /// </summary>
     private readonly List<IRule> _rules = new();
 
-    public int Count => _rules.Count;
+    /// <summary>
+    /// Gets the collection of enabled and distinct rules.
+    /// </summary>
+    public IEnumerable<IRule> Rules => _rules.Where(r => r.IsEnabled).Distinct();
 
-    public IRule this[int index]
-    {
-        get => _rules[index];
-        set => _rules[index] = value;
-    }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RuleSet"/> class.
+    /// </summary>
+    public RuleSet() { }
 
-    public RuleSet()
-    {
-
-    }
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RuleSet"/> class with the specified rules.
+    /// </summary>
+    /// <param name="rules">The initial collection of rules.</param>
     public RuleSet(IEnumerable<IRule> rules) => _rules = rules.ToList();
 
-    public async Task PrepareRules()
+    /// <summary>
+    /// Adds a rule to the rule set.
+    /// </summary>
+    /// <param name="rule">The rule to add.</param>
+    /// <exception cref="ArgumentException">Thrown when the rule set already contains the specified rule.</exception>
+    public void Add(IRule rule)
     {
-        await Task.Run(() =>
-        {
-            foreach (IDependedRule rule in this.Where(r => r is IDependedRule).Cast<IDependedRule>())
-            {
-                int ruleIndex = _rules.IndexOf(rule);
-                foreach (IRule dependency in rule.Dependencies.Select(d => d.Key))
-                {
-                    if (!this.Contains(dependency) || _rules.IndexOf(dependency) > ruleIndex)
-                        RemoveDependency(rule, dependency);
-                }
-            }
-        });
+        if (_rules.Contains(rule))
+            throw new ArgumentException($"Current RuleSet already contains '{nameof(rule)}'", nameof(rule));
+
+        _rules.Add(rule);
     }
 
-    public void AddDependency(IDependedRule to, IRule rule)
+    /// <summary>
+    /// Adds a range of rules to the rule set.
+    /// </summary>
+    /// <param name="rules">The collection of rules to add.</param>
+    public void AddRange(IEnumerable<IRule> rules) => rules?.ForEach(Add);
+
+    /// <summary>
+    /// Inserts a rule at the specified index in the rule set.
+    /// </summary>
+    /// <param name="index">The index at which to insert the rule.</param>
+    /// <param name="rule">The rule to insert.</param>
+    /// <exception cref="ArgumentException">Thrown when the rule set already contains the specified rule.</exception>
+    public void InsertBefore(IRule pointer, IRule rule)
     {
-        ArgumentNullException.ThrowIfNull(to);
+        ArgumentNullException.ThrowIfNull(pointer);
         ArgumentNullException.ThrowIfNull(rule);
 
-        if (!this.Contains(to)) throw new ArgumentException("\"to\" must be in this RuleSet", nameof(to));
-        if (!this.Contains(rule)) throw new ArgumentException("\"rule\" must be in this RuleSet", nameof(rule));
+        if (!_rules.Contains(pointer))
+            throw new ArgumentException($"Current RuleSet must contains '{nameof(pointer)}'", nameof(pointer));
+        if (_rules.Contains(rule))
+            throw new ArgumentException($"Current RuleSet already contains '{nameof(rule)}'", nameof(rule));
 
-        to.AddDependency(rule);
+        _rules.Insert(_rules.IndexOf(pointer), rule);
     }
-    public void RemoveDependency(IDependedRule to, IRule rule)
-    {
-        ArgumentNullException.ThrowIfNull(to);
-        ArgumentNullException.ThrowIfNull(rule);
 
-        if (!this.Contains(to)) throw new ArgumentException("\"to\" must be in this RuleSet", nameof(to));
-
-        to.RemoveDependency(rule);
-    }
-    public void ClearDependencies(IDependedRule rule) => rule.ClearDependencies();
-
-    public void Add(IRule rule) => _rules.Add(rule);
-    public void Insert(int index, IRule rule) => _rules.Insert(index, rule);
-    public void Clear() => _rules.Clear();
-    public void RemoveAt(int index) => _rules.RemoveAt(index);
+    /// <summary>
+    /// Removes the specified rule from the rule set.
+    /// </summary>
+    /// <param name="item">The rule to remove.</param>
+    /// <returns><c>true</c> if the rule was removed successfully; otherwise, <c>false</c>.</returns>
     public bool Remove(IRule item) => _rules.Remove(item);
 
-    public IEnumerator<IRule> GetEnumerator() => _rules.Where(r => r.IsEnabled).Distinct().GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    /// <summary>
+    /// Removes a range of rules from the rule set.
+    /// </summary>
+    /// <param name="rules">The collection of rules to remove.</param>
+    public void RemoveRange(IEnumerable<IRule> rules) => rules?.ForEach(rule => Remove(rule));
+
+    /// <summary>
+    /// Clears all rules from the rule set.
+    /// </summary>
+    public void Clear() => _rules.Clear();
+
+    /// <summary>
+    /// Disposes the rule set and suppresses finalization.
+    /// </summary>
+    public void Dispose() => GC.SuppressFinalize(this);
 }

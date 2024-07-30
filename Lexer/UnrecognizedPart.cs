@@ -1,8 +1,4 @@
 ﻿namespace Lexer;
-
-/// <summary>
-/// Represents a segment of text that was not recognized or processed by the parser.
-/// </summary>
 public record UnrecognizedPart
 {
     /// <summary>

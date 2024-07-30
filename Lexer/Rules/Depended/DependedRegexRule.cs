@@ -1,9 +1,9 @@
 ﻿#nullable disable
-using Lexer;
 using Lexer.Exceptions;
 using Lexer.Extensions;
-using Lexer.Rules.Interfaces;
 using Lexer.Rules.RawResults;
+using Lexer.Rules.RawResults.Interfaces;
+using Lexer.Rules.RuleInputs.Interfaces;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
@@ -40,11 +40,17 @@ public class DependedRegexRule : DependedRuleBase
     /// </summary>
     /// <param name="pattern">The regular expression pattern.</param>
     /// <param name="type">The type of the rule.</param>
-    /// <param name="ruleOptions">The options for the rule.</param>
-    /// <param name="isIgnored">Optional. Specifies whether lexemes found by this rule should be ignored in the output. Defaults to false.</param>
-    /// <param name="isEnabled">Optional. Specifies whether this rule is enabled and should be used in the lexeme identification process. Defaults to true.</param>
     /// <exception cref="ArgumentNullException">Thrown when a null pattern or type is passed to the constructor.</exception>
-    public DependedRegexRule([StringSyntax("Regex")] string pattern, DependedRegexRuleSettings ruleSettings) : this(pattern, RegexOptions.None, ruleSettings) { }
+    public DependedRegexRule([StringSyntax("Regex")] string pattern, string type) : this(pattern, RegexOptions.None, type, new()) { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DependedRegexRule"/> class with the specified pattern and type.
+    /// </summary>
+    /// <param name="pattern">The regular expression pattern.</param>
+    /// <param name="type">The type of the rule.</param>
+    /// <param name="ruleSettings">The settings for the rule.</param>
+    /// <exception cref="ArgumentNullException">Thrown when a null pattern or type is passed to the constructor.</exception>
+    public DependedRegexRule([StringSyntax("Regex")] string pattern, string type, DependedRegexRuleSettings ruleSettings) : this(pattern, RegexOptions.None, type, ruleSettings) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DependedRegexRule"/> class with the specified pattern, options, and type.
@@ -52,11 +58,18 @@ public class DependedRegexRule : DependedRuleBase
     /// <param name="pattern">The regular expression pattern.</param>
     /// <param name="regexOptions">The options for the regular expression.</param>
     /// <param name="type">The type of the rule.</param>
-    /// <param name="ruleOptions">The options for the rule.</param>
-    /// <param name="isIgnored">Optional. Specifies whether lexemes found by this rule should be ignored in the output. Defaults to false.</param>
-    /// <param name="isEnabled">Optional. Specifies whether this rule is enabled and should be used in the lexeme identification process. Defaults to true.</param>
     /// <exception cref="ArgumentNullException">Thrown when a null pattern or type is passed to the constructor.</exception>
-    public DependedRegexRule([StringSyntax("Regex")] string pattern, RegexOptions regexOptions, DependedRegexRuleSettings ruleSettings) : base(ruleSettings)
+    public DependedRegexRule([StringSyntax("Regex")] string pattern, RegexOptions regexOptions, string type) : this(pattern, regexOptions, type, new()) { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DependedRegexRule"/> class with the specified pattern, options, and type.
+    /// </summary>
+    /// <param name="pattern">The regular expression pattern.</param>
+    /// <param name="regexOptions">The options for the regular expression.</param>
+    /// <param name="type">The type of the rule.</param>
+    /// <param name="ruleSettings">The settings for the rule.</param>
+    /// <exception cref="ArgumentNullException">Thrown when a null pattern or type is passed to the constructor.</exception>
+    public DependedRegexRule([StringSyntax("Regex")] string pattern, RegexOptions regexOptions, string type, DependedRegexRuleSettings ruleSettings) : base(type, ruleSettings)
     {
         Pattern = pattern;
         RegexOptions = regexOptions;
@@ -69,10 +82,10 @@ public class DependedRegexRule : DependedRuleBase
     /// <param name="input">The text to be analyzed.</param>
     /// <param name="ct">Optional cancellation token to cancel the operation.</param>
     /// <returns>A task that yields an AnalyzedLayer containing the identified lexemes.</returns>
-    public override async Task<AnalyzedLayer> FindLexemes(IRuleInput input, CancellationToken ct = default)
+    public override IEnumerable<IRawLexeme> FindLexemes(IDependedRuleInput input)
     {
         if (input is not IDependedRuleInput dInput)
-            throw new ArgumentException($"\"input\" must be an instance of \"IDependedRule\"", nameof(input));
+            throw new ArgumentException($"'input' must be an instance of 'IDependedRule'", nameof(input));
 
         Regex forReplace = new(@"<(\w+)>");
 
@@ -87,7 +100,7 @@ public class DependedRegexRule : DependedRuleBase
         if (!validNames.ScrambledEquals(uniqueNamesInPattern))
             throw new RegexDependencyException(uniqueNamesInPattern.Except(validNames));
 
-        var uniquePointers = uniqueNamesInPattern.ToDictionary(n => n, n => new Pointer(dInput.Dependencies[Dependencies.Single(d => d.Value.Contains(n)).Key].Select(l => input.Text.Substring(l.Start, l.Length)).Distinct()));
+        var uniquePointers = uniqueNamesInPattern.ToDictionary(n => n, n => new Pointer(dInput.Dependencies[Dependencies.Single(d => d.Value.Contains(n)).Key].RawLexemes.Select(l => input.Text.Substring(l.Start, l.Length)).Distinct()));
 
         List<Pointer> replacePointers = new();
 
@@ -109,37 +122,34 @@ public class DependedRegexRule : DependedRuleBase
 
         List<RawLexeme> lexemes = new();
 
-        await Task.Run(() =>
+        while (true)
         {
-            while (true)
+            string pattern = Pattern;
+
+            foreach (var pointer in replacePointers)
             {
-                string pattern = Pattern;
-
-                foreach (var pointer in replacePointers)
-                {
-                    pattern = forReplace.Replace(pattern, pointer.Current, 1);
-                }
-
-                lexemes.AddRange(Regex.Matches(input.Text, pattern).Select(m => new RawLexeme(m.Index, m.Length, this)));
-
-                var distinctListOfPointers = replacePointers.Distinct().ToList();
-                int index = 0;
-                while (index < distinctListOfPointers.Count && distinctListOfPointers[index].Index == distinctListOfPointers[index].Length - 1)
-                {
-                    distinctListOfPointers[index].Index = 0;
-                    index++;
-                }
-
-                if (index >= distinctListOfPointers.Count)
-                {
-                    break;
-                }
-
-                distinctListOfPointers[index].Index++;
+                pattern = forReplace.Replace(pattern, pointer.Current, 1);
             }
-        }, ct);
 
-        return await AnalyzedLayer.FromIEnumerable(lexemes);
+            lexemes.AddRange(Regex.Matches(input.Text, pattern).Select(m => new RawLexeme(m.Index, m.Length, this, Type)));
+
+            var distinctListOfPointers = replacePointers.Distinct().ToList();
+            int index = 0;
+            while (index < distinctListOfPointers.Count && distinctListOfPointers[index].Index == distinctListOfPointers[index].Length - 1)
+            {
+                distinctListOfPointers[index].Index = 0;
+                index++;
+            }
+
+            if (index >= distinctListOfPointers.Count)
+            {
+                break;
+            }
+
+            distinctListOfPointers[index].Index++;
+        }
+
+        return lexemes;
     }
 
     private class Pointer

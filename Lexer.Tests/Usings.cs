@@ -1,3 +1,2 @@
-﻿using Xunit;
-using FluentAssertions;
-using Moq;
+﻿global using FluentAssertions;
+global using Moq;
