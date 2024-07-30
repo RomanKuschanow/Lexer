@@ -149,9 +149,9 @@ public class LexemeAnalyzer : IDisposable
         // Get line and character position from index
         (int, int) GetLineAndCharacter(int index)
         {
-            int ln = text[..index].Where(ch => ch == '\n').Count() + 1;
+            int ln = text[..index].Where(ch => ch == '\n').Count();
             int lastIndexOfNewLine = text[..(index + 1)].LastIndexOf('\n');
-            int ch = index - (lastIndexOfNewLine > -1 ? lastIndexOfNewLine : 0) + 1;
+            int ch = index - (lastIndexOfNewLine > -1 ? lastIndexOfNewLine : 0);
             return (ln, ch);
         }
     }
